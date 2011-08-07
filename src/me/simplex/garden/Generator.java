@@ -7,7 +7,6 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
-import org.bukkit.util.noise.SimplexNoiseGenerator;
 import org.bukkit.util.noise.SimplexOctaveGenerator;
 
 public class Generator extends ChunkGenerator {
@@ -18,18 +17,18 @@ public class Generator extends ChunkGenerator {
 
 	@Override
 	public byte[] generate(World world, Random random, int x_chunk, int z_chunk) {
-		SimplexOctaveGenerator gen_hills1 			=  new SimplexOctaveGenerator(new Random(world.getSeed()), 8);
-		SimplexOctaveGenerator gen_hills2  			=  new SimplexOctaveGenerator(new Random(world.getSeed()), 8);
-		SimplexOctaveGenerator gen_ground  			=  new SimplexOctaveGenerator(new Random(world.getSeed()), 4);
-		SimplexOctaveGenerator gen_mountains		=  new SimplexOctaveGenerator(new Random(world.getSeed()), 16);
-		SimplexNoiseGenerator gen_mountains_noise  	=  new SimplexNoiseGenerator(new Random(world.getSeed()));
+		SimplexOctaveGenerator gen_hills					=  new SimplexOctaveGenerator(new Random(world.getSeed()), 4);
+		SimplexOctaveGenerator gen_ground  					=  new SimplexOctaveGenerator(new Random(world.getSeed()), 8);
+		SimplexOctaveGenerator gen_highland					=  new SimplexOctaveGenerator(new Random(world.getSeed()), 16);
+		SimplexOctaveGenerator gen_spikes					=  new SimplexOctaveGenerator(new Random(world.getSeed()), 32);
+		SimplexOctaveGenerator gen_spikes_height			=  new SimplexOctaveGenerator(new Random(world.getSeed()), 32);
 		
-		gen_hills1.setScale(1/128.0);
-		gen_hills2.setScale(1/512.0);
+		gen_spikes.setScale(1/32.0);
+		gen_spikes_height.setScale(1/32.0);
+		gen_hills.setScale(1/64.0);
 		gen_ground.setScale(1/256.0);
-		gen_mountains.setScale(1/512.0);
-
-		
+		gen_highland.setScale(1/1024.0);
+				
 		byte[] chunk_data = new byte[32768];
 		
 		for (int x = 0; x < 16; x++) {
@@ -39,17 +38,17 @@ public class Generator extends ChunkGenerator {
 
 				genUnderground(x, z, chunk_data);
 
-				genSurface_Mountains(x, z, chunk_data, x_chunk, z_chunk, gen_mountains, gen_mountains_noise);
+				genSurface_Highlands(x, z, chunk_data, x_chunk, z_chunk, gen_highland);
 				
-				genSurface_Hills(x, z, chunk_data, x_chunk, z_chunk, gen_hills1, 16);
-				
-				genSurface_Hills(x, z, chunk_data, x_chunk, z_chunk, gen_hills2, 8);
+				genSurface_Hills(x, z, chunk_data, x_chunk, z_chunk, gen_hills, 16);
 				
 				genSurface_Ground(x, z, chunk_data, x_chunk, z_chunk, gen_ground);
 				
-				genSurface_TopLayer(x,z, chunk_data);
+				genSurface_Spikes(x, z, chunk_data, x_chunk, z_chunk, gen_spikes, gen_spikes_height);
 				
 				genWater(x, z, chunk_data);
+				
+				genSurface_TopLayer(x,z, chunk_data);
 
 			}
 		}
@@ -74,35 +73,72 @@ public class Generator extends ChunkGenerator {
 	}
 	
 	private void genUnderground(int x, int z, byte[] chunk_data) {
-		for (int y = 5; y < 45 ; y++) {
+		for (int y = 5; y < 30 ; y++) {
 			chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.STONE.getId();
 		}
 	}
 	
-	private void genSurface_Mountains(int x, int z, byte[] chunk_data, int xChunk, int zChunk, SimplexOctaveGenerator gen, SimplexNoiseGenerator noisegen) {
-		double noise 		= gen.noise(x+xChunk*16, z+zChunk*16, 0.02, 0.02)*80;
-		double mtn_noise 	= Math.abs(noisegen.noise(xChunk*16, zChunk*16))*2;
-		for (int y = 5; y < 5+noise-mtn_noise; y++) {
-			if (y < 127 && y >= 0) {
-				chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.STONE.getId();
+	private void genSurface_Highlands(int x, int z, byte[] chunk_data, int xChunk, int zChunk, SimplexOctaveGenerator gen) {
+		double noise = gen.noise(x+xChunk*16, z+zChunk*16, 0.1, 0.1)*60;
+		int limit = (int) (30+noise);
+		for (int y = 30; y < limit; y++) {
+			if (y < 90 && y >= 0) {
+				if (y+5 >= limit) {
+					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.DIRT.getId();
+				}
+				else {
+					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.STONE.getId();
+				}
 			}
 		}
 	}
 	
 	private void genSurface_Hills(int x, int z, byte[] chunk_data, int xChunk, int zChunk, SimplexOctaveGenerator gen, int multiply) {
-		double noise = gen.noise(x+xChunk*16, z+zChunk*16, 0.4, 0.7)*multiply;
-		for (int y = 45; y < 45+noise; y++) {
+		double noise = gen.noise(x+xChunk*16, z+zChunk*16, 0.6, 0.6)*multiply;		
+		int limit = (int) (35+noise);
+		for (int y = 30; y < limit; y++) {
 			if (chunk_data[CoordinatesToByte(x, y, z)] == 0) {
-				chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.DIRT.getId();
+				if (y+5 >= limit) {
+					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.DIRT.getId();
+				}
+				else {
+					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.STONE.getId();
+				}
+				
 			}
 		}
 	}
 	
 	private void genSurface_Ground(int x, int z, byte[] chunk_data, int xChunk, int zChunk, SimplexOctaveGenerator gen) {
-		double noise = gen.noise(x+xChunk*16, z+zChunk*16, 0.05, 0.10)*10;
-		for (int y = 45; y < 45+noise; y++) {
+		double noise = gen.noise(x+xChunk*16, z+zChunk*16, 0.01, 0.5)*20;
+		int limit = (int) (35+noise);
+		for (int y = 30; y < limit; y++) {
 			if (chunk_data[CoordinatesToByte(x, y, z)] == 0) {
-				chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.DIRT.getId();
+				if (y+5 >= limit) {
+					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.DIRT.getId();
+				}
+				else {
+					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.STONE.getId();
+				}
+				
+			}
+		}
+	}
+	
+	private void genSurface_Spikes(int x, int z, byte[] chunk_data, int xChunk, int zChunk, SimplexOctaveGenerator gen, SimplexOctaveGenerator gen_height) {
+		double noise = gen.noise(x+xChunk*16, z+zChunk*16, 1,1)*100;
+		double maxheight = 20+gen.noise(x+xChunk*16, z+zChunk*16, 1,1)*5;
+		int limit = (int) (25+noise);
+		for (int y = 25; y < limit; y++) {
+			if (y <= maxheight && y <= 126) {
+				if (chunk_data[CoordinatesToByte(x, y, z)] == 0) {
+					if (y+2 >= limit) {
+						chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.DIRT.getId();
+					}
+					else {
+						chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.STONE.getId();
+					}
+				}
 			}
 		}
 	}
@@ -111,6 +147,15 @@ public class Generator extends ChunkGenerator {
 		int y = 127;
 		while (true) {
 			if (chunk_data[CoordinatesToByte(x, y, z)] != 0) {
+				if (chunk_data[CoordinatesToByte(x, y, z)] == Material.WATER.getId()) {
+					return;
+				}
+				
+				if (y==36 || y==35) {
+					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.SAND.getId();
+					return;
+				}
+				
 				chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.GRASS.getId();
 				return;
 			}
@@ -122,7 +167,7 @@ public class Generator extends ChunkGenerator {
 	}
 	
 	private void genWater(int x, int z, byte[] chunk_data) {
-		int y = 45;
+		int y = 35;
 		while (true) {
 			if (chunk_data[CoordinatesToByte(x, y, z)] == 0) {
 				chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.WATER.getId();

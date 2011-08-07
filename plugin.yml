@@ -5,3 +5,8 @@ website: http://over9000.eu
 author: simplex
 startup: startup
 description: WGEN lolwut
+commands:
+  garden:
+    aliases: [g,grdn]
+    description: Generates a new Garden-World and ports you into it
+    usage: /<command>

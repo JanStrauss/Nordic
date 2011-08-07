@@ -1,0 +1,7 @@
+name: Garden
+main: me.simplex.garden.Garden
+version: 0.0.1
+website: http://over9000.eu
+author: simplex
+startup: startup
+description: WGEN lolwut

@@ -24,7 +24,7 @@ public class Generator extends ChunkGenerator {
 		SimplexOctaveGenerator gen_spikes_height			=  new SimplexOctaveGenerator(new Random(world.getSeed()), 32);
 		
 		gen_spikes.setScale(1/32.0);
-		gen_spikes_height.setScale(1/32.0);
+		gen_spikes_height.setScale(1/64.0);
 		gen_hills.setScale(1/64.0);
 		gen_ground.setScale(1/256.0);
 		gen_highland.setScale(1/1024.0);
@@ -49,24 +49,25 @@ public class Generator extends ChunkGenerator {
 				genWater(x, z, chunk_data);
 				
 				genSurface_TopLayer(x,z, chunk_data);
+				
 
 			}
 		}
 		return chunk_data;
 	}
 	
-	private void genFloor(int x, int z, byte[] chunk){
+	private void genFloor(int x, int z, byte[] chunk_data){
 		for (int y = 0; y < 5; y++) {			
 			if (y<3) { //build solid bedrock floor
-				chunk[CoordinatesToByte(x, y, z)] = (byte) Material.BEDROCK.getId();
+				chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.BEDROCK.getId();
 			}
 			else { // build 2 block height mix floor
 				int rnd = new Random().nextInt(100);
 				if (rnd < 40) {
-					chunk[CoordinatesToByte(x, y, z)] = (byte) Material.BEDROCK.getId();
+					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.BEDROCK.getId();
 				}
 				else {
-					chunk[CoordinatesToByte(x, y, z)] = (byte) Material.STONE.getId();
+					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.STONE.getId();
 				}
 			}
 		}
@@ -127,7 +128,7 @@ public class Generator extends ChunkGenerator {
 	
 	private void genSurface_Spikes(int x, int z, byte[] chunk_data, int xChunk, int zChunk, SimplexOctaveGenerator gen, SimplexOctaveGenerator gen_height) {
 		double noise = gen.noise(x+xChunk*16, z+zChunk*16, 1,1)*100;
-		double maxheight = 20+gen.noise(x+xChunk*16, z+zChunk*16, 1,1)*5;
+		double maxheight = 30+gen.noise(x+xChunk*16, z+zChunk*16, 1,1)*5;
 		int limit = (int) (25+noise);
 		for (int y = 25; y < limit; y++) {
 			if (y <= maxheight && y <= 126) {

@@ -3,6 +3,8 @@ package me.simplex.garden;
 import java.util.List;
 import java.util.Random;
 
+import me.simplex.garden.Voronoi.DistanceMetric;
+
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.BlockPopulator;
@@ -23,6 +25,9 @@ public class Generator extends ChunkGenerator {
 		SimplexOctaveGenerator gen_spikes					=  new SimplexOctaveGenerator(new Random(world.getSeed()), 32);
 		SimplexOctaveGenerator gen_spikes_height			=  new SimplexOctaveGenerator(new Random(world.getSeed()), 32);
 		
+		Voronoi voronoi_gen_high = new Voronoi(128, true, world.getSeed(), 2, DistanceMetric.Quadratic, 1);
+		Voronoi voronoi_gen_low = new Voronoi(64, true, world.getSeed(), 2, DistanceMetric.Squared, 1);
+
 		gen_spikes.setScale(1/32.0);
 		gen_spikes_height.setScale(1/64.0);
 		gen_hills.setScale(1/64.0);
@@ -37,17 +42,22 @@ public class Generator extends ChunkGenerator {
 				genFloor(x, z, chunk_data);
 
 				genUnderground(x, z, chunk_data);
-
-				genSurface_Highlands(x, z, chunk_data, x_chunk, z_chunk, gen_highland);
-				
-				genSurface_Hills(x, z, chunk_data, x_chunk, z_chunk, gen_hills, 16);
-				
+//
+//				genSurface_Highlands(x, z, chunk_data, x_chunk, z_chunk, gen_highland);
+//				
+//				genSurface_Hills(x, z, chunk_data, x_chunk, z_chunk, gen_hills, 16);
+//				
 				genSurface_Ground(x, z, chunk_data, x_chunk, z_chunk, gen_ground);
 				
-				genSurface_Spikes(x, z, chunk_data, x_chunk, z_chunk, gen_spikes, gen_spikes_height);
+//				genSurface_Spikes(x, z, chunk_data, x_chunk, z_chunk, gen_spikes, gen_spikes_height);
 				
-				genWater(x, z, chunk_data);
+				genSurface_Noise_High(x, z, x_chunk,z_chunk, chunk_data, voronoi_gen_high);
 				
+				genSurface_Noise_Low(x, z, x_chunk,z_chunk, chunk_data, voronoi_gen_low);
+				
+				
+//				genWater(x, z, chunk_data);
+//				
 				genSurface_TopLayer(x,z, chunk_data);
 				
 
@@ -80,7 +90,7 @@ public class Generator extends ChunkGenerator {
 	}
 	
 	private void genSurface_Highlands(int x, int z, byte[] chunk_data, int xChunk, int zChunk, SimplexOctaveGenerator gen) {
-		double noise = gen.noise(x+xChunk*16, z+zChunk*16, 0.1, 0.1)*60;
+		double noise = gen.noise(x+xChunk*16, z+zChunk*16, 0.1, 0.1)*25;
 		int limit = (int) (30+noise);
 		for (int y = 30; y < limit; y++) {
 			if (y < 90 && y >= 0) {
@@ -111,7 +121,7 @@ public class Generator extends ChunkGenerator {
 	}
 	
 	private void genSurface_Ground(int x, int z, byte[] chunk_data, int xChunk, int zChunk, SimplexOctaveGenerator gen) {
-		double noise = gen.noise(x+xChunk*16, z+zChunk*16, 0.01, 0.5)*20;
+		double noise = gen.noise(x+xChunk*16, z+zChunk*16, 0.01, 0.5)*15;
 		int limit = (int) (35+noise);
 		for (int y = 30; y < limit; y++) {
 			if (chunk_data[CoordinatesToByte(x, y, z)] == 0) {
@@ -121,7 +131,6 @@ public class Generator extends ChunkGenerator {
 				else {
 					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.STONE.getId();
 				}
-				
 			}
 		}
 	}
@@ -142,6 +151,38 @@ public class Generator extends ChunkGenerator {
 				}
 			}
 		}
+	}
+	
+	private void genSurface_Noise_High(int x, int z, int xChunk, int zChunk, byte[] chunk_data, Voronoi noisegen) {
+		double noise = noisegen.get((x+xChunk*16)/128.0f, (z+zChunk*16)/128.0f)*80;
+		int limit = (int) (35+noise);
+			for (int y = 10; y < limit; y++) {
+				if (chunk_data[CoordinatesToByte(x, y, z)] == 0) {
+					if (y+new Random().nextInt(3) >= limit) {
+						chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.DIRT.getId();
+					}
+					else {
+						chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.STONE.getId();
+					}
+				}
+			}
+	}
+	
+	private void genSurface_Noise_Low(int x, int z, int xChunk, int zChunk, byte[] chunk_data, Voronoi noisegen) {
+		double noise = noisegen.get((x+xChunk*16)/64.0f, (z+zChunk*16)/64.0f)*50;
+		int yhigh = 0;
+		for (int y = 127; y >= 0; y--) {
+			if (chunk_data[CoordinatesToByte(x, y, z)] != (byte) Material.AIR.getId()) {
+				yhigh=y;
+				break;
+			}
+		}
+			
+		for (int y = yhigh; y >= yhigh-noise; y--) {
+			if (y >=0) {
+					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.AIR.getId();
+			}
+		}	
 	}
 	
 	private void genSurface_TopLayer(int x, int z, byte[] chunk_data) {

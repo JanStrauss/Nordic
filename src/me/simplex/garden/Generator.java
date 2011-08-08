@@ -26,7 +26,7 @@ public class Generator extends ChunkGenerator {
 		SimplexOctaveGenerator gen_spikes_height			=  new SimplexOctaveGenerator(new Random(world.getSeed()), 32);
 		
 		Voronoi voronoi_gen_high = new Voronoi(128, true, world.getSeed(), 2, DistanceMetric.Quadratic, 1);
-		Voronoi voronoi_gen_low = new Voronoi(64, true, world.getSeed(), 2, DistanceMetric.Squared, 1);
+		Voronoi voronoi_gen_low = new Voronoi(64, true, world.getSeed(), 4, DistanceMetric.Squared, 1);
 
 		gen_spikes.setScale(1/32.0);
 		gen_spikes_height.setScale(1/64.0);
@@ -39,8 +39,6 @@ public class Generator extends ChunkGenerator {
 		for (int x = 0; x < 16; x++) {
 			for (int z = 0; z < 16; z++) {
 			
-				genFloor(x, z, chunk_data);
-
 				genUnderground(x, z, chunk_data);
 //
 //				genSurface_Highlands(x, z, chunk_data, x_chunk, z_chunk, gen_highland);
@@ -53,14 +51,13 @@ public class Generator extends ChunkGenerator {
 				
 				genSurface_Noise_High(x, z, x_chunk,z_chunk, chunk_data, voronoi_gen_high);
 				
-				genSurface_Noise_Low(x, z, x_chunk,z_chunk, chunk_data, voronoi_gen_low);
+				genSurface_Noise_Low(x, z, x_chunk,z_chunk, chunk_data, voronoi_gen_low);	
 				
-				
-//				genWater(x, z, chunk_data);
+	//			genWater(x, z, chunk_data);
 //				
 				genSurface_TopLayer(x,z, chunk_data);
 				
-
+				genFloor(x, z, chunk_data);
 			}
 		}
 		return chunk_data;
@@ -169,18 +166,17 @@ public class Generator extends ChunkGenerator {
 	}
 	
 	private void genSurface_Noise_Low(int x, int z, int xChunk, int zChunk, byte[] chunk_data, Voronoi noisegen) {
-		double noise = noisegen.get((x+xChunk*16)/64.0f, (z+zChunk*16)/64.0f)*50;
-		int yhigh = 0;
+		double noise = 20+noisegen.get((x+xChunk*16)/32.0f, (z+zChunk*16)/32.0f)*150;
+		int y_start = 0;
 		for (int y = 127; y >= 0; y--) {
 			if (chunk_data[CoordinatesToByte(x, y, z)] != (byte) Material.AIR.getId()) {
-				yhigh=y;
+				y_start=y;
 				break;
 			}
 		}
-			
-		for (int y = yhigh; y >= yhigh-noise; y--) {
+		for (int y = y_start; y >= y_start-noise; y--) {
 			if (y >=0) {
-					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.AIR.getId();
+					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.WOOD.getId();
 			}
 		}	
 	}
@@ -189,12 +185,17 @@ public class Generator extends ChunkGenerator {
 		int y = 127;
 		while (true) {
 			if (chunk_data[CoordinatesToByte(x, y, z)] != 0) {
-				if (chunk_data[CoordinatesToByte(x, y, z)] == Material.WATER.getId()) {
+				if (chunk_data[CoordinatesToByte(x, y, z)] == Material.STATIONARY_WATER.getId()) {
 					return;
 				}
 				
 				if (y==36 || y==35) {
 					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.SAND.getId();
+					return;
+				}
+				
+				if (y >= 70+new Random().nextInt(10) ) {
+					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.STONE.getId();
 					return;
 				}
 				
@@ -212,7 +213,7 @@ public class Generator extends ChunkGenerator {
 		int y = 35;
 		while (true) {
 			if (chunk_data[CoordinatesToByte(x, y, z)] == 0) {
-				chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.WATER.getId();
+				chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.STATIONARY_WATER.getId();
 			}
 			y--;
 			if (y <= 20) {

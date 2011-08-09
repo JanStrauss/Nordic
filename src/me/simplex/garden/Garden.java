@@ -35,7 +35,7 @@ public class Garden extends JavaPlugin {
 		Player player = (Player)sender;
 		
 		if (command.getName().equalsIgnoreCase("garden")) {
-			World garden = getServer().createWorld("world_garden", Environment.NORMAL, 1337, wgen);
+			World garden = getServer().getWorld("world_garden");
 			player.teleport(garden.getSpawnLocation());
 			return true;
 		}

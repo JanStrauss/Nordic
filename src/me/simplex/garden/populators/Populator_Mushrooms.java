@@ -14,7 +14,7 @@ public class Populator_Mushrooms extends BlockPopulator {
 	@Override
 	public void populate(World world, Random random, Chunk source) {
 		int chance = random.nextInt(100);
-		if (chance < 5) {
+		if (chance < 7) {
 			int type = random.nextInt(100);
 			Material mushroom;
 			if (type < 33) {
@@ -24,14 +24,17 @@ public class Populator_Mushrooms extends BlockPopulator {
 				mushroom = Material.BROWN_MUSHROOM;
 			}
 			int mushroomcount = random.nextInt(3)+2;
+			int placed = 0;
 			for (int t = 0; t <= mushroomcount; t++) {
-				placed:
 				for (int flower_x = 0; flower_x < 16; flower_x++) {
 					for (int flower_z = 0; flower_z < 16; flower_z++) {
-						Block handle = world.getBlockAt(flower_x+source.getX()*16, getHighestBlockYAtIgnoreTreesAndFoliage(world, flower_x+source.getX()*16, flower_z+source.getZ()*16), flower_z+source.getZ()*16);
+						Block handle = world.getBlockAt(flower_x+source.getX()*16, getHighestEmptyBlockYAtIgnoreTreesAndFoliage(world, flower_x+source.getX()*16, flower_z+source.getZ()*16), flower_z+source.getZ()*16);
 						if (handle.getRelative(BlockFace.DOWN).getType().equals(Material.GRASS) && isRelativeTo(handle, Material.LOG) && handle.isEmpty()) {
 							handle.setType(mushroom);
-							break placed;
+							placed++;
+							if (placed >= mushroomcount) {
+								return;	
+							}
 						}
 					}
 				}
@@ -48,7 +51,7 @@ public class Populator_Mushrooms extends BlockPopulator {
 	    return false;
 	}
 	
-	private int getHighestBlockYAtIgnoreTreesAndFoliage(World w, int x, int z){
+	private int getHighestEmptyBlockYAtIgnoreTreesAndFoliage(World w, int x, int z){
 		for (int y = 127; y >= 1; y--) {
 			Block handle = w.getBlockAt(x, y-1, z);
 			int id = handle.getTypeId();

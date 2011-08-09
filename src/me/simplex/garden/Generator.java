@@ -6,7 +6,10 @@ import java.util.Random;
 
 import me.simplex.garden.noise.Voronoi;
 import me.simplex.garden.noise.Voronoi.DistanceMetric;
-import me.simplex.garden.populators.Populator_trees;
+import me.simplex.garden.populators.Populator_Flowers;
+import me.simplex.garden.populators.Populator_Longgrass;
+import me.simplex.garden.populators.Populator_Mushrooms;
+import me.simplex.garden.populators.Populator_Trees;
 
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -224,7 +227,10 @@ public class Generator extends ChunkGenerator {
 	@Override
 	public List<BlockPopulator> getDefaultPopulators(World world) {
 		ArrayList<BlockPopulator> populators = new ArrayList<BlockPopulator>();
-		populators.add(new Populator_trees());
+		populators.add(new Populator_Trees());
+		populators.add(new Populator_Flowers());
+		populators.add(new Populator_Mushrooms());
+		populators.add(new Populator_Longgrass());
 		return populators;
 	}
 	

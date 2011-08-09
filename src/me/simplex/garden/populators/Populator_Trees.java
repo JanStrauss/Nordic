@@ -9,7 +9,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.generator.BlockPopulator;
 
-public class Populator_trees extends BlockPopulator {
+public class Populator_Trees extends BlockPopulator {
 
 	@Override
 	public void populate(World world, Random random, Chunk source) {

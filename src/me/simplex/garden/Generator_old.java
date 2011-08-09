@@ -31,7 +31,6 @@ public class Generator_old extends ChunkGenerator {
 		SimplexNoiseGenerator gen_noise = new SimplexNoiseGenerator(world.getSeed());
 		
 		Voronoi voronoi_gen_mountains = new Voronoi(128, true, world.getSeed(), 2, DistanceMetric.Quadratic, 1);
-		Voronoi voronoi_gen_low = new Voronoi(64, true, world.getSeed(), 4, DistanceMetric.Squared, 1);
 
 		gen_spikes.setScale(1/32.0);
 		gen_spikes_height.setScale(1/64.0);

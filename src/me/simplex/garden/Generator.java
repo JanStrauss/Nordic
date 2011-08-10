@@ -6,6 +6,8 @@ import java.util.Random;
 
 import me.simplex.garden.noise.Voronoi;
 import me.simplex.garden.noise.Voronoi.DistanceMetric;
+import me.simplex.garden.populators.Populator_Ores;
+import me.simplex.garden.populators.Populator_Caves;
 import me.simplex.garden.populators.Populator_Flowers;
 import me.simplex.garden.populators.Populator_Gravel;
 import me.simplex.garden.populators.Populator_Longgrass;
@@ -29,7 +31,7 @@ public class Generator extends ChunkGenerator {
 
 		SimplexOctaveGenerator gen_highland					=  new SimplexOctaveGenerator(new Random(world.getSeed()), 16);
 		
-		SimplexOctaveGenerator gen_base1					=  new SimplexOctaveGenerator(new Random(world.getSeed()), 32);
+		SimplexOctaveGenerator gen_base1					=  new SimplexOctaveGenerator(new Random(world.getSeed()), 16);
 		SimplexOctaveGenerator gen_base2					=  new SimplexOctaveGenerator(new Random(world.getSeed()), 16);
 		
 		SimplexOctaveGenerator gen_hills					=  new SimplexOctaveGenerator(new Random(world.getSeed()), 4);
@@ -232,6 +234,8 @@ public class Generator extends ChunkGenerator {
 	public List<BlockPopulator> getDefaultPopulators(World world) {
 		ArrayList<BlockPopulator> populators = new ArrayList<BlockPopulator>();
 		populators.add(new Populator_Gravel());
+		populators.add(new Populator_Caves());
+		populators.add(new Populator_Ores());
 		populators.add(new Populator_Trees());
 		populators.add(new Populator_Flowers());
 		populators.add(new Populator_Mushrooms());

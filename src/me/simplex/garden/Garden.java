@@ -13,6 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Garden extends JavaPlugin {
 	private Logger log = Logger.getLogger("Minecraft");
 	private Generator wgen;
+	public static Garden Instance;
 	
 	@Override
 	public void onDisable() {
@@ -21,10 +22,12 @@ public class Garden extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		Instance = this;
 		wgen = new Generator();
 		log.info("[Garden] loading Garden v"+getDescription().getVersion());
 		getServer().createWorld("world_garden", Environment.NORMAL, 1337, wgen);
 		log.info("[Garden] loaded.");
+		
 	}
 	
 	@Override

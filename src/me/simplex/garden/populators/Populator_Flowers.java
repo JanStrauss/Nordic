@@ -21,7 +21,7 @@ public class Populator_Flowers extends BlockPopulator {
 				int flower_x = random.nextInt(15);
 				int flower_z = random.nextInt(15);
 				
-				Block handle = world.getBlockAt(flower_x+source.getX()*16, world.getHighestBlockYAt(flower_x+source.getX()*16, flower_z+source.getZ()*16)+1, flower_z+source.getZ()*16);
+				Block handle = world.getBlockAt(flower_x+source.getX()*16, world.getHighestBlockYAt(flower_x+source.getX()*16, flower_z+source.getZ()*16), flower_z+source.getZ()*16);
 				if (handle.getRelative(BlockFace.DOWN).getType().equals(Material.GRASS)) {
 					if (type < 33) {
 						handle.setType(Material.RED_ROSE);

@@ -10,7 +10,6 @@ import me.simplex.garden.populators.Populator_Flowers;
 import me.simplex.garden.populators.Populator_Gravel;
 import me.simplex.garden.populators.Populator_Longgrass;
 import me.simplex.garden.populators.Populator_Mushrooms;
-import me.simplex.garden.populators.Populator_Snow;
 import me.simplex.garden.populators.Populator_Trees;
 
 import org.bukkit.Material;
@@ -104,7 +103,8 @@ public class Generator extends ChunkGenerator {
 		int limit = (int) (35+noise);
 		for (int y = 30; y < limit; y++) {
 			if (chunk_data[CoordinatesToByte(x, y, z)] == 0) {
-				if (y+4 >= limit) {
+				int dirtlimit = new Random().nextInt(4);
+				if (y+dirtlimit >= limit) {
 					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.DIRT.getId();
 				}
 				else {
@@ -126,7 +126,8 @@ public class Generator extends ChunkGenerator {
 		}
 		limit = (int) (base+noise);
 		for (int y = base; y < limit; y++) {
-			if (y+5 >= limit) {
+			int dirtlimit = new Random().nextInt(4);
+			if (y+dirtlimit >= limit) {
 				chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.DIRT.getId();
 			}
 			else {
@@ -140,7 +141,8 @@ public class Generator extends ChunkGenerator {
 		int limit = (int) (35+noise);
 		for (int y = 30; y < limit; y++) {
 			if (chunk_data[CoordinatesToByte(x, y, z)] == 0) {
-				if (y+2 >= limit) {
+				int dirtlimit = new Random().nextInt(4);
+				if (y+dirtlimit >= limit) {
 					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.DIRT.getId();
 				}
 				else {
@@ -231,16 +233,15 @@ public class Generator extends ChunkGenerator {
 		ArrayList<BlockPopulator> populators = new ArrayList<BlockPopulator>();
 		populators.add(new Populator_Gravel());
 		populators.add(new Populator_Trees());
-		populators.add(new Populator_Snow());
 		populators.add(new Populator_Flowers());
 		populators.add(new Populator_Mushrooms());
 		populators.add(new Populator_Longgrass());
 		return populators;
 	}
 	
-//	@Override
-//	public boolean canSpawn(World world, int x, int z) {
-//		return true;
-//	}
+	@Override
+	public boolean canSpawn(World world, int x, int z) {
+		return true;
+	}
 
 }

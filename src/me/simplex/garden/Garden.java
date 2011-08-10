@@ -22,8 +22,9 @@ public class Garden extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		wgen = new Generator();
-		log.info("[Garden] loaded Garden v"+getDescription().getVersion());
+		log.info("[Garden] loading Garden v"+getDescription().getVersion());
 		getServer().createWorld("world_garden", Environment.NORMAL, 1337, wgen);
+		log.info("[Garden] loaded.");
 	}
 	
 	@Override

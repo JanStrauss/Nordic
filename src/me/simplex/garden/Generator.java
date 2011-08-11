@@ -22,6 +22,30 @@ import org.bukkit.util.noise.SimplexOctaveGenerator;
 
 public class Generator extends ChunkGenerator {
 	
+	private SimplexOctaveGenerator gen_highland	;
+	private SimplexOctaveGenerator gen_base1;
+	private SimplexOctaveGenerator gen_base2;
+	private SimplexOctaveGenerator gen_hills;
+	private SimplexOctaveGenerator gen_ground;
+	
+	private Voronoi voronoi_gen_base1;
+	private Voronoi voronoi_gen_base2;
+	private Voronoi voronoi_gen_mountains;
+	
+	public Generator(long seed) {
+		gen_highland			= new SimplexOctaveGenerator(new Random(seed), 16);
+		gen_base1				= new SimplexOctaveGenerator(new Random(seed), 16);
+		gen_base2				= new SimplexOctaveGenerator(new Random(seed), 16);
+		gen_hills				= new SimplexOctaveGenerator(new Random(seed),  4);
+		gen_ground  			= new SimplexOctaveGenerator(new Random(seed), 16);
+		
+		voronoi_gen_base1 		= new Voronoi(64, true, seed, 16, DistanceMetric.Squared,	4);
+		voronoi_gen_base2 		= new Voronoi(64, true, seed, 16, DistanceMetric.Quadratic,	4);
+		voronoi_gen_mountains 	= new Voronoi(64, true, seed, 16, DistanceMetric.Squared,	4);
+		
+		System.out.println("MEH MEH MEH");
+	}
+	
 	private static int CoordinatesToByte(int x, int y, int z) {
 		return (x * 16 + z) * 128 + y;
 	}
@@ -48,17 +72,7 @@ public class Generator extends ChunkGenerator {
 		
 		int[][] chunk_heightmap = new int[16][16];
 		byte[] chunk_data = new byte[32768];
-
-		SimplexOctaveGenerator gen_highland		= new SimplexOctaveGenerator(new Random(world.getSeed()), 16);
-		SimplexOctaveGenerator gen_base1		= new SimplexOctaveGenerator(new Random(world.getSeed()), 16);
-		SimplexOctaveGenerator gen_base2		= new SimplexOctaveGenerator(new Random(world.getSeed()), 16);
-		SimplexOctaveGenerator gen_hills		= new SimplexOctaveGenerator(new Random(world.getSeed()),  4);
-		SimplexOctaveGenerator gen_ground  		= new SimplexOctaveGenerator(new Random(world.getSeed()), 16);
-	
-		Voronoi voronoi_gen_base1 				= new Voronoi(64, true, world.getSeed(), 16, DistanceMetric.Squared,	4);
-		Voronoi voronoi_gen_base2 				= new Voronoi(64, true, world.getSeed(), 16, DistanceMetric.Quadratic,	4);
-		Voronoi voronoi_gen_mountains 			= new Voronoi(64, true, world.getSeed(), 16, DistanceMetric.Squared,	4);
-				
+							
 		for (int x = 0; x < 16; x++) {
 			for (int z = 0; z < 16; z++) {
 				
@@ -75,7 +89,7 @@ public class Generator extends ChunkGenerator {
 				
 				// Underwater ground
 				setHeightmapValueAt(chunk_heightmap, x, z, gen_Ground(x, z, x_chunk, z_chunk, gen_ground));
-				
+							
 				// Some shiny hills
 				setHeightmapValueAt(chunk_heightmap, x, z, gen_Hills(x, z, x_chunk, z_chunk, getCurrentHeightmapValueAt(chunk_heightmap, x, z), gen_hills));
 				
@@ -84,6 +98,7 @@ public class Generator extends ChunkGenerator {
 				
 				// Some highlands
 				setHeightmapValueAt(chunk_heightmap, x, z, gen_Highlands(x, z, x_chunk, z_chunk, getCurrentHeightmapValueAt(chunk_heightmap, x, z), gen_highland));
+				
 				// ############################## Heightmap end ##############################
 				
 				
@@ -141,14 +156,12 @@ public class Generator extends ChunkGenerator {
 			return 0;
 		}
 		double noise = gen.noise((x+xChunk*16)/250.0f, (z+zChunk*16)/250.0f, 0.6, 0.6)*25;		 
-		int limit = (int) (34+noise);
-		return limit;
+		return (int) (34+noise);
 	}
 	
-	private int gen_Hills(int x, int z, int xChunk, int zChunk,int current_height, SimplexOctaveGenerator gen) {
-		double noise = gen.noise((x+xChunk*16)/250.0f, (z+zChunk*16)/250.0f, 0.6, 0.6)*10;		
-		int limit = (int) (current_height+noise);
-		return limit;
+	private int gen_Hills(int x, int z, int xChunk, int zChunk, int current_height, SimplexOctaveGenerator gen) {
+		double noise = gen.noise((x+xChunk*16)/250.0f, (z+zChunk*16)/250.0f, 0.6, 0.6)*10;	
+		return  (int) (current_height-2+noise);
 	}
 	
 	private int gen_Ground(int x, int z,int xChunk, int zChunk, SimplexOctaveGenerator gen) {
@@ -186,11 +199,11 @@ public class Generator extends ChunkGenerator {
 		Random rnd = new Random();
 		if (height > 75) {
 			for (int y = height; y >= height-rnd.nextInt(5); y--) {
-				setMaterialAt(chunk_data, x, y, z, Material.DIRT);
+				setMaterialAt(chunk_data, x, y, z, Material.STONE);
 			}
 		}
 		else {
-			int soil_depth = rnd.nextInt(2)+1;
+			int soil_depth = rnd.nextInt(4);
 			if (grass) {
 				setMaterialAt(chunk_data, x, height, z, Material.GRASS);
 			}

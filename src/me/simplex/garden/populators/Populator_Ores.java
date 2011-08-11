@@ -30,15 +30,12 @@ public class Populator_Ores extends BlockPopulator {
 	public void populate(World world, Random random, Chunk source) {
 		for (int i = 0; i < type.length; i++) {
 			for (int j = 0; j < iterations[i]; j++) {
-				internal(source, random, random.nextInt(16),
-						 random.nextInt(maxHeight[i]), random.nextInt(16),
-						 amount[i], type[i]);
+				internal(source, random, random.nextInt(16),random.nextInt(maxHeight[i]), random.nextInt(16),amount[i], type[i]);
 			}
 		}
 	}
 
-	private static void internal(Chunk source, Random random, int originX,
-								 int originY, int originZ, int amount, int type) {
+	private static void internal(Chunk source, Random random, int originX, int originY, int originZ, int amount, int type) {
 		for (int i = 0; i < amount; i++) {
 			int x = originX + random.nextInt(amount / 2) - amount / 4;
 			int y = originY + random.nextInt(amount / 4) - amount / 8;

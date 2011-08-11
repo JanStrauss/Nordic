@@ -4,10 +4,8 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-import me.simplex.garden.Garden;
 import me.simplex.garden.util.XYZ;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -49,7 +47,7 @@ public class Populator_Caves extends BlockPopulator {
 	@Override
 	public void populate(final World world, final Random random, Chunk source) {
 
-		if (random.nextInt(100) < 5) {
+		if (random.nextInt(100) < 3) {
 			final int x = 4 + random.nextInt(8) + source.getX() * 16;
 			final int z = 4 + random.nextInt(8) + source.getZ() * 16;
 			int maxY = world.getHighestBlockYAt(x, z);
@@ -58,34 +56,21 @@ public class Populator_Caves extends BlockPopulator {
 			}
 
 			final int y = random.nextInt(maxY);
-			new Thread() {
-				@Override
-				public void run() {
-					Set<XYZ> snake = startSnake(world, random, x, y, z);
-					Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Garden.Instance, new FinishSnake(world, snake));
-
-					if (random.nextInt(16) > 5) {
-						if (y > 36) {
-							snake = startSnake(world, random, x, y / 2, z);
-							Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Garden.Instance,new FinishSnake(world, snake));
-						} else if (y < 24) {
-							snake = startSnake(world, random, x, y * 2, z);
-							Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Garden.Instance,new FinishSnake(world, snake));
-						}
-					}
-				}
-			}.start();
+			Set<XYZ> snake = startSnake(world, random, x, y, z);
+			finishSnake(world, snake.toArray(new XYZ[0]));
+			for (XYZ block : snake) {
+				world.unloadChunkRequest(block.x / 16, block.z / 16);
+			}
 		}
 	}
 
-	static Set<XYZ> startSnake(World world, Random random, int blockX,
-			int blockY, int blockZ) {
+	static Set<XYZ> startSnake(World world, Random random, int blockX, int blockY, int blockZ) {
 		Set<XYZ> snakeBlocks = new HashSet<XYZ>();
 
 		int airHits = 0;
 		XYZ block = new XYZ();
 		while (true) {
-			if (airHits > 2000) {
+			if (airHits > 1500) {
 				break;
 			}
 

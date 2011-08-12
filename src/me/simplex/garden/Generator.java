@@ -6,6 +6,7 @@ import java.util.Random;
 
 import me.simplex.garden.noise.Voronoi;
 import me.simplex.garden.noise.Voronoi.DistanceMetric;
+import me.simplex.garden.populators.Populator_Lakes;
 import me.simplex.garden.populators.Populator_Ores;
 import me.simplex.garden.populators.Populator_Caves;
 import me.simplex.garden.populators.Populator_Flowers;
@@ -144,13 +145,7 @@ public class Generator extends ChunkGenerator {
 			}
 		}
 	}
-	
-//	private void genUnderground(int x, int z, byte[] chunk_data) {
-//		for (int y = 5; y < 30 ; y++) {
-//			chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.STONE.getId();
-//		}
-//	}
-	
+		
 	private int gen_Highlands(int x, int z, int xChunk, int zChunk, int current_height, SimplexOctaveGenerator gen) {
 		if (current_height < 50) {
 			return 0;
@@ -172,7 +167,7 @@ public class Generator extends ChunkGenerator {
 	}
 		
 	private int gen_Mountains(int x, int z, int xChunk, int zChunk,int current_height, Voronoi noisegen) {
-		double noise = noisegen.get((x+xChunk*16)/250.0f, (z+zChunk*16)/250.0f)*100;		
+		double noise = noisegen.get((x+xChunk*16)/250.0f, (z+zChunk*16)/250.0f)*100;
 		int limit = (int) (current_height+noise);
 		if (limit < 30) {
 			return 0;
@@ -234,6 +229,7 @@ public class Generator extends ChunkGenerator {
 		ArrayList<BlockPopulator> populators = new ArrayList<BlockPopulator>();
 		populators.add(new Populator_Gravel());
 		populators.add(new Populator_Caves());
+		populators.add(new Populator_Lakes());
 		populators.add(new Populator_Ores());
 		populators.add(new Populator_Trees());
 		populators.add(new Populator_Flowers());

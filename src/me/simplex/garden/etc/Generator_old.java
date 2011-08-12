@@ -1,4 +1,4 @@
-package me.simplex.garden;
+package me.simplex.garden.etc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,20 +94,20 @@ public class Generator_old extends ChunkGenerator {
 		}
 	}
 	
-	private void genSurface_Highlands(int x, int z, byte[] chunk_data, int xChunk, int zChunk, SimplexOctaveGenerator gen) {
-		double noise = gen.noise(x+xChunk*16, z+zChunk*16, 0.1, 0.1)*25;
-		int limit = (int) (30+noise);
-		for (int y = 30; y < limit; y++) {
-			if (y < 90 && y >= 0) {
-				if (y+5 >= limit) {
-					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.DIRT.getId();
-				}
-				else {
-					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.STONE.getId();
-				}
-			}
-		}
-	}
+//	private void genSurface_Highlands(int x, int z, byte[] chunk_data, int xChunk, int zChunk, SimplexOctaveGenerator gen) {
+//		double noise = gen.noise(x+xChunk*16, z+zChunk*16, 0.1, 0.1)*25;
+//		int limit = (int) (30+noise);
+//		for (int y = 30; y < limit; y++) {
+//			if (y < 90 && y >= 0) {
+//				if (y+5 >= limit) {
+//					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.DIRT.getId();
+//				}
+//				else {
+//					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.STONE.getId();
+//				}
+//			}
+//		}
+//	}
 	
 	private void genSurface_Hills(int x, int z, byte[] chunk_data, int xChunk, int zChunk, SimplexOctaveGenerator gen, int multiply) {
 		double noise = gen.noise(x+xChunk*16, z+zChunk*16, 0.6, 0.6)*multiply;		
@@ -140,23 +140,23 @@ public class Generator_old extends ChunkGenerator {
 		}
 	}
 	
-	private void genSurface_Spikes(int x, int z, byte[] chunk_data, int xChunk, int zChunk, SimplexOctaveGenerator gen, SimplexOctaveGenerator gen_height) {
-		double noise = gen.noise(x+xChunk*16, z+zChunk*16, 1,1)*100;
-		double maxheight = 30+gen.noise(x+xChunk*16, z+zChunk*16, 1,1)*5;
-		int limit = (int) (25+noise);
-		for (int y = 25; y < limit; y++) {
-			if (y <= maxheight && y <= 126) {
-				if (chunk_data[CoordinatesToByte(x, y, z)] == 0) {
-					if (y+2 >= limit) {
-						chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.DIRT.getId();
-					}
-					else {
-						chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.STONE.getId();
-					}
-				}
-			}
-		}
-	}
+//	private void genSurface_Spikes(int x, int z, byte[] chunk_data, int xChunk, int zChunk, SimplexOctaveGenerator gen, SimplexOctaveGenerator gen_height) {
+//		double noise = gen.noise(x+xChunk*16, z+zChunk*16, 1,1)*100;
+//		double maxheight = 30+gen.noise(x+xChunk*16, z+zChunk*16, 1,1)*5;
+//		int limit = (int) (25+noise);
+//		for (int y = 25; y < limit; y++) {
+//			if (y <= maxheight && y <= 126) {
+//				if (chunk_data[CoordinatesToByte(x, y, z)] == 0) {
+//					if (y+2 >= limit) {
+//						chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.DIRT.getId();
+//					}
+//					else {
+//						chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.STONE.getId();
+//					}
+//				}
+//			}
+//		}
+//	}
 	
 	private void genSurface_Mountains(int x, int z, int xChunk, int zChunk, byte[] chunk_data, Voronoi noisegen) {
 		double noise = noisegen.get((x+xChunk*16)/200.0f, (z+zChunk*16)/200.0f)*150;
@@ -173,21 +173,21 @@ public class Generator_old extends ChunkGenerator {
 			}
 	}
 	
-	private void genSurface_Noise_Low(int x, int z, int xChunk, int zChunk, byte[] chunk_data, Voronoi noisegen) {
-		double noise = 10+noisegen.get((x+xChunk*16)/64.0f, (z+zChunk*16)/64.0f)*120;
-		int y_start = 0;
-		for (int y = 127; y >= 0; y--) {
-			if (chunk_data[CoordinatesToByte(x, y, z)] != (byte) Material.AIR.getId()) {
-				y_start=y;
-				break;
-			}
-		}
-		for (int y = y_start; y >= y_start-noise; y--) {
-			if (y >=30) {
-					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.AIR.getId();
-			}
-		}
-	}
+//	private void genSurface_Noise_Low(int x, int z, int xChunk, int zChunk, byte[] chunk_data, Voronoi noisegen) {
+//		double noise = 10+noisegen.get((x+xChunk*16)/64.0f, (z+zChunk*16)/64.0f)*120;
+//		int y_start = 0;
+//		for (int y = 127; y >= 0; y--) {
+//			if (chunk_data[CoordinatesToByte(x, y, z)] != (byte) Material.AIR.getId()) {
+//				y_start=y;
+//				break;
+//			}
+//		}
+//		for (int y = y_start; y >= y_start-noise; y--) {
+//			if (y >=30) {
+//					chunk_data[CoordinatesToByte(x, y, z)] = (byte) Material.AIR.getId();
+//			}
+//		}
+//	}
 	
 	private void genSurface_Noise(int x, int z, int xChunk, int zChunk, byte[] chunk_data, SimplexNoiseGenerator gen) {
 		double noise = gen.noise((x+xChunk*16)/256.0f, (z+zChunk*16)/256.0f)*30;

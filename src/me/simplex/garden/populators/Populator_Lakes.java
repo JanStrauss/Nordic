@@ -20,7 +20,7 @@ import org.bukkit.generator.BlockPopulator;
  * BlockPopulator for snake-based Lakes.
  * 
  * @author simplex
- * basen on Pandarr's CaveGen
+ * based on Pandarr's CaveGen
  */
 public class Populator_Lakes extends BlockPopulator {
 
@@ -46,23 +46,23 @@ public class Populator_Lakes extends BlockPopulator {
 		}
 	}
 
-	static Set<XYZ> selectBlocksForLake(World world, Random random, int blockX, int blockY, int blockZ) {
+	private static Set<XYZ> selectBlocksForLake(World world, Random random, int blockX, int blockY, int blockZ) {
 		Set<XYZ> snakeBlocks = new HashSet<XYZ>();
 		int blockY_start = blockY;
 		int airHits = 0;
 		XYZ block = new XYZ();
 		while (true) {
-			if (airHits > 1000) {
+			if (airHits > 3500) {
 				break;
 			}
 
 			if (random.nextInt(20) == 0) {
-				if (!(blockY_start-blockY > 2)) {
+				if (!(blockY_start-blockY > 3)) {
 					blockY -= 2;
 				}
 			} 
 			else if (world.getBlockTypeIdAt(blockX, blockY + 2, blockZ) == 0) {
-				if (!(blockY_start-blockY > 2)) {
+				if (!(blockY_start-blockY > 3)) {
 					blockY--;
 				}
 			} 
@@ -133,7 +133,8 @@ public class Populator_Lakes extends BlockPopulator {
 		return snakeBlocks;
 	}
 
-	static void buildLake(World world, XYZ[] snakeBlocks) {
+	private static void buildLake(World world, XYZ[] snakeBlocks) {
+		// cut the snake into slices, this is my lab report
 		HashMap<Integer, ArrayList<Block>> slices = new HashMap<Integer, ArrayList<Block>>();
 		int lowest_y = 127;
 		for (XYZ loc : snakeBlocks) {
@@ -153,28 +154,48 @@ public class Populator_Lakes extends BlockPopulator {
 				lowest_y = loc.y;
 			}
 		}
-		
+		// sort the slices 
 		ArrayList<Integer> sortedKeys = new ArrayList<Integer>(slices.keySet());
 		Collections.sort(sortedKeys);
 		
+		// if a slice has a solid border, fill with border, else make it air
+		ArrayList<ArrayList<Block>> water_slices = new ArrayList<ArrayList<Block>>();
 		for (Integer key : sortedKeys) {
-			ArrayList<Block> blocks = slices.get(key);
-			if (SliceHasBorder(blocks)) {
-				for (Block block : blocks) {
+			ArrayList<Block> slice = slices.get(key);
+			if (SliceHasBorder(slice)) {
+				for (Block block : slice) {
 					block.setType(Material.STATIONARY_WATER);
 				}
+				water_slices.add(slice);
 			}
 			else {
 				if (key.intValue() == lowest_y) {
 					return;
 				}
-				for (Block block : blocks) {
+				for (Block block : slice) {
 					block.setType(Material.AIR);
 				}
 			}
 		}
+		// dirt on ground of the lake
 		for (Block block : slices.get(Integer.valueOf(lowest_y))) {
 			block.getRelative(BlockFace.DOWN).setType(Material.DIRT);
+		}
+		// stair'd ground
+		for (int steps = water_slices.size()-1; steps >= 0; steps--) {
+			for (int layer = 0; layer < steps; layer++) {
+				ArrayList<Block> blocks = water_slices.get(layer);
+				ArrayList<Block> toRemove = new ArrayList<Block>();
+				for (Block b : blocks) {
+					if (checkBlockIsOnBorderOfSlice(b, blocks)) {
+						b.setType(Material.DIRT);
+						toRemove.add(b);
+					}
+				}
+				for (Block b : toRemove) {
+					blocks.remove(b);
+				}			
+			}
 		}
 	}
 	
@@ -193,4 +214,27 @@ public class Populator_Lakes extends BlockPopulator {
 		}
 		return false;
 	}
+	
+	private static void buildWaterfall(Block block){
+		BlockFace[] faces = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
+		for (BlockFace blockFace : faces) {
+			Block handle = block.getRelative(blockFace);
+			if (!handle.isEmpty()) {
+				
+			}
+		}
+	}
+	
+	private static boolean checkBlockIsOnBorderOfSlice(Block block, ArrayList<Block> slice){
+		BlockFace[] faces = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
+			if (slice.contains(block.getRelative(faces[0])) 
+			 && slice.contains(block.getRelative(faces[1])) 
+			 && slice.contains(block.getRelative(faces[2])) 
+			 && slice.contains(block.getRelative(faces[3]))) {
+				return false;
+			}
+		return true;
+	}
+	
+
 }

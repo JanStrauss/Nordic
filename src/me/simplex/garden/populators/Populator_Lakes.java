@@ -52,7 +52,7 @@ public class Populator_Lakes extends BlockPopulator {
 		int airHits = 0;
 		XYZ block = new XYZ();
 		while (true) {
-			if (airHits > 3500) {
+			if (airHits > 4500) {
 				break;
 			}
 
@@ -160,6 +160,7 @@ public class Populator_Lakes extends BlockPopulator {
 		
 		// if a slice has a solid border, fill with border, else make it air
 		ArrayList<ArrayList<Block>> water_slices = new ArrayList<ArrayList<Block>>();
+		ArrayList<ArrayList<Block>> air_slices = new ArrayList<ArrayList<Block>>();
 		for (Integer key : sortedKeys) {
 			ArrayList<Block> slice = slices.get(key);
 			if (SliceHasBorder(slice)) {
@@ -175,6 +176,7 @@ public class Populator_Lakes extends BlockPopulator {
 				for (Block block : slice) {
 					block.setType(Material.AIR);
 				}
+				air_slices.add(slice);
 			}
 		}
 		// dirt on ground of the lake
@@ -197,6 +199,34 @@ public class Populator_Lakes extends BlockPopulator {
 				}			
 			}
 		}
+		//shiny waterfalls
+		
+		//ignore 2 lowest slices
+		air_slices.remove(0);
+		air_slices.remove(0);
+		
+		//select possible blocks
+		ArrayList<Block> waterfall_candidates = new ArrayList<Block>();
+		int limit = 6;
+		if (air_slices.size() < limit) {
+			limit = air_slices.size();
+		}
+		for (int i = 0; i < limit; i++) {
+			ArrayList<Block> slice = air_slices.get(i);
+			for (Block b : slice) {
+				boolean checkBorder = checkBlockIsOnBorderOfSlice(b, slice);
+				boolean checkQualified = isWaterfallQualified(b);
+				//System.out.println(checkBorder +" | "+checkQualified);
+				if (checkBorder && checkQualified) {
+					waterfall_candidates.add(b);
+				}
+			}
+		}
+		//build it
+		System.out.println(waterfall_candidates.size());
+		if (!waterfall_candidates.isEmpty()) {
+			buildWaterfall(waterfall_candidates.get(new Random().nextInt(waterfall_candidates.size())));
+		}
 	}
 	
 	private static boolean SliceHasBorder(ArrayList<Block> slice){
@@ -215,16 +245,28 @@ public class Populator_Lakes extends BlockPopulator {
 		return false;
 	}
 	
+	private static boolean isWaterfallQualified(Block block){
+		BlockFace[] faces = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};	
+		for (BlockFace f : faces) {
+			Block r = block.getRelative(f);
+			if (!r.isEmpty() && !r.getRelative(BlockFace.UP).isEmpty()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	private static void buildWaterfall(Block block){
-		BlockFace[] faces = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
-		for (BlockFace blockFace : faces) {
-			Block handle = block.getRelative(blockFace);
-			if (!handle.isEmpty()) {
-				
+		BlockFace[] faces = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};	
+		for (BlockFace f : faces) {
+			Block r = block.getRelative(f);
+			if (!r.isEmpty()) {
+				r.setType(Material.WATER);
+				return;
 			}
 		}
 	}
-	
+		
 	private static boolean checkBlockIsOnBorderOfSlice(Block block, ArrayList<Block> slice){
 		BlockFace[] faces = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
 			if (slice.contains(block.getRelative(faces[0])) 

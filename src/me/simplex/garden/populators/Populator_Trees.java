@@ -4,9 +4,11 @@ import java.util.Random;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.TreeType;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.generator.BlockPopulator;
 
 public class Populator_Trees extends BlockPopulator {
@@ -21,6 +23,9 @@ public class Populator_Trees extends BlockPopulator {
 			
 			Block block = world.getHighestBlockAt(tree_x+source.getX()*16, tree_z+source.getZ()*16);
 			Location high = block.getLocation();
+			if (!block.getRelative(BlockFace.DOWN).getType().equals(Material.GRASS)) {
+				return;
+			}
 			if (random.nextInt(10) < 2) {
 				world.generateTree(high, TreeType.TALL_REDWOOD);
 			}

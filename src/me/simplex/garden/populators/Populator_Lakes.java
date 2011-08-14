@@ -202,8 +202,12 @@ public class Populator_Lakes extends BlockPopulator {
 		//shiny waterfalls
 		
 		//ignore 2 lowest slices
-		air_slices.remove(0);
-		air_slices.remove(0);
+		if (air_slices.size()>1) {
+			air_slices.remove(0);
+		}
+		if (air_slices.size()>1) {
+			air_slices.remove(0);
+		}
 		
 		//select possible blocks
 		ArrayList<Block> waterfall_candidates = new ArrayList<Block>();
@@ -223,9 +227,13 @@ public class Populator_Lakes extends BlockPopulator {
 			}
 		}
 		//build it
-		System.out.println(waterfall_candidates.size());
+		//System.out.println(waterfall_candidates.size());
+		Random r = new Random();
 		if (!waterfall_candidates.isEmpty()) {
-			buildWaterfall(waterfall_candidates.get(new Random().nextInt(waterfall_candidates.size())));
+			buildWaterfall(waterfall_candidates.get(r.nextInt(waterfall_candidates.size())));
+		}
+		if (r.nextInt(100)< 10) {
+			buildWaterfall(waterfall_candidates.get(r.nextInt(waterfall_candidates.size())));
 		}
 	}
 	

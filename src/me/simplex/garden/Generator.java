@@ -6,14 +6,6 @@ import java.util.Random;
 
 import me.simplex.garden.noise.Voronoi;
 import me.simplex.garden.noise.Voronoi.DistanceMetric;
-import me.simplex.garden.populators.Populator_Lakes;
-import me.simplex.garden.populators.Populator_Ores;
-import me.simplex.garden.populators.Populator_Caves;
-import me.simplex.garden.populators.Populator_Flowers;
-import me.simplex.garden.populators.Populator_Gravel;
-import me.simplex.garden.populators.Populator_Longgrass;
-import me.simplex.garden.populators.Populator_Mushrooms;
-import me.simplex.garden.populators.Populator_Trees;
 
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -32,8 +24,9 @@ public class Generator extends ChunkGenerator {
 	private Voronoi voronoi_gen_base1;
 	private Voronoi voronoi_gen_base2;
 	private Voronoi voronoi_gen_mountains;
+	private ArrayList<BlockPopulator> populators;
 	
-	public Generator(long seed) {
+	public Generator(long seed, ArrayList<BlockPopulator> populators) {
 		gen_highland			= new SimplexOctaveGenerator(new Random(seed), 16);
 		gen_base1				= new SimplexOctaveGenerator(new Random(seed), 16);
 		gen_base2				= new SimplexOctaveGenerator(new Random(seed), 16);
@@ -43,6 +36,7 @@ public class Generator extends ChunkGenerator {
 		voronoi_gen_base1 		= new Voronoi(64, true, seed, 16, DistanceMetric.Squared,	4);
 		voronoi_gen_base2 		= new Voronoi(64, true, seed, 16, DistanceMetric.Quadratic,	4);
 		voronoi_gen_mountains 	= new Voronoi(64, true, seed, 16, DistanceMetric.Squared,	4);
+		this.populators = populators;
 		
 		System.out.println("MEH MEH MEH");
 	}
@@ -192,11 +186,14 @@ public class Generator extends ChunkGenerator {
 			grass = false;
 		}
 		Random rnd = new Random();
-		if (height > 75) {
-			for (int y = height; y >= height-rnd.nextInt(5); y--) {
-				setMaterialAt(chunk_data, x, y, z, Material.STONE);
+		if (height > 75 && rnd.nextBoolean()) {
+			if (height > 85) {
+				return;
 			}
+				setMaterialAt(chunk_data, x, height, z, Material.GRASS);
+				return;
 		}
+		
 		else {
 			int soil_depth = rnd.nextInt(4);
 			if (grass) {
@@ -226,15 +223,6 @@ public class Generator extends ChunkGenerator {
 	
 	@Override
 	public List<BlockPopulator> getDefaultPopulators(World world) {
-		ArrayList<BlockPopulator> populators = new ArrayList<BlockPopulator>();
-		populators.add(new Populator_Gravel());
-		populators.add(new Populator_Caves());
-		populators.add(new Populator_Lakes());
-		populators.add(new Populator_Ores());
-		populators.add(new Populator_Trees());
-		populators.add(new Populator_Flowers());
-		populators.add(new Populator_Mushrooms());
-		populators.add(new Populator_Longgrass());
 		return populators;
 	}
 	

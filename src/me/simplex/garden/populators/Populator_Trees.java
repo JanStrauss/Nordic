@@ -26,8 +26,9 @@ public class Populator_Trees extends BlockPopulator {
 			if (!block.getRelative(BlockFace.DOWN).getType().equals(Material.GRASS)) {
 				return;
 			}
-			if (random.nextInt(10) < 2) {
+			if (random.nextInt(10) < 1) {
 				world.generateTree(high, TreeType.TALL_REDWOOD);
+				
 			}
 			else {
 				world.generateTree(high, TreeType.REDWOOD);

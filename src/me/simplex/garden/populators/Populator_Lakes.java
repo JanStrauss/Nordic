@@ -31,7 +31,7 @@ public class Populator_Lakes extends BlockPopulator {
 	@Override
 	public void populate(final World world, final Random random, Chunk source) {
 
-		if (random.nextInt(100) < 3) {
+		if (random.nextInt(100) < 2) {
 			final int x = 4 + random.nextInt(8) + source.getX() * 16;
 			final int z = 4 + random.nextInt(8) + source.getZ() * 16;
 			int maxY = world.getHighestBlockYAt(x, z);
@@ -52,7 +52,7 @@ public class Populator_Lakes extends BlockPopulator {
 		int airHits = 0;
 		XYZ block = new XYZ();
 		while (true) {
-			if (airHits > 4500) {
+			if (airHits > 5500) {
 				break;
 			}
 
@@ -158,6 +158,10 @@ public class Populator_Lakes extends BlockPopulator {
 		ArrayList<Integer> sortedKeys = new ArrayList<Integer>(slices.keySet());
 		Collections.sort(sortedKeys);
 		
+		if (!SliceHasBorder(slices.get(sortedKeys.get(0)))) {
+			return;
+		}
+		
 		// if a slice has a solid border, fill with border, else make it air
 		ArrayList<ArrayList<Block>> water_slices = new ArrayList<ArrayList<Block>>();
 		ArrayList<ArrayList<Block>> air_slices = new ArrayList<ArrayList<Block>>();
@@ -170,9 +174,6 @@ public class Populator_Lakes extends BlockPopulator {
 				water_slices.add(slice);
 			}
 			else {
-				if (key.intValue() == lowest_y) {
-					return;
-				}
 				for (Block block : slice) {
 					block.setType(Material.AIR);
 				}
@@ -231,9 +232,9 @@ public class Populator_Lakes extends BlockPopulator {
 		Random r = new Random();
 		if (!waterfall_candidates.isEmpty()) {
 			buildWaterfall(waterfall_candidates.get(r.nextInt(waterfall_candidates.size())));
-		}
-		if (r.nextInt(100)< 10) {
-			buildWaterfall(waterfall_candidates.get(r.nextInt(waterfall_candidates.size())));
+			if (r.nextInt(100)< 10) {
+				buildWaterfall(waterfall_candidates.get(r.nextInt(waterfall_candidates.size())));
+			}
 		}
 	}
 	
@@ -258,7 +259,9 @@ public class Populator_Lakes extends BlockPopulator {
 		for (BlockFace f : faces) {
 			Block r = block.getRelative(f);
 			if (!r.isEmpty() && !r.getRelative(BlockFace.UP).isEmpty()) {
-				return true;
+				if (r.getType().equals(Material.DIRT) || r.getType().equals(Material.STONE)) {
+					return true;
+				}
 			}
 		}
 		return false;

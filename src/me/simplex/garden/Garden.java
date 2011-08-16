@@ -5,9 +5,11 @@ import java.util.logging.Logger;
 
 import me.simplex.garden.populators.Populator_Caves;
 import me.simplex.garden.populators.Populator_CustomTrees;
+import me.simplex.garden.populators.Populator_Delayed_Foliage;
 import me.simplex.garden.populators.Populator_Flowers;
 import me.simplex.garden.populators.Populator_Gravel;
 import me.simplex.garden.populators.Populator_Lakes;
+import me.simplex.garden.populators.Populator_Lava_Lakes;
 import me.simplex.garden.populators.Populator_Longgrass;
 import me.simplex.garden.populators.Populator_Mushrooms;
 import me.simplex.garden.populators.Populator_Ores;
@@ -33,18 +35,23 @@ public class Garden extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-		ArrayList<BlockPopulator> populators = new ArrayList<BlockPopulator>();
-		populators.add(new Populator_Gravel());
-		populators.add(new Populator_Caves());
-		populators.add(new Populator_Lakes());
-		populators.add(new Populator_Ores());
-		populators.add(new Populator_CustomTrees());
-		populators.add(new Populator_Trees());
-		populators.add(new Populator_Flowers());
-		populators.add(new Populator_Mushrooms());
-		populators.add(new Populator_Longgrass());
+		ArrayList<BlockPopulator> populators_delayed = new ArrayList<BlockPopulator>();
+		populators_delayed.add(new Populator_CustomTrees());
+		populators_delayed.add(new Populator_Trees());
+		populators_delayed.add(new Populator_Flowers());
+		populators_delayed.add(new Populator_Mushrooms());
+		populators_delayed.add(new Populator_Longgrass());
+		
+		ArrayList<BlockPopulator> populators_main = new ArrayList<BlockPopulator>();
+		populators_main.add(new Populator_Lakes());
+		populators_main.add(new Populator_Gravel());
+		populators_main.add(new Populator_Lava_Lakes());
+		populators_main.add(new Populator_Caves());
+		populators_main.add(new Populator_Ores());
+		populators_main.add(new Populator_Delayed_Foliage(populators_delayed, this, getServer().getScheduler()));
+		
 
-		wgen = new Generator(1337, populators);
+		wgen = new Generator(1337, populators_main);
 		log.info("[Garden] loading Garden v"+getDescription().getVersion());
 		getServer().createWorld("world_garden", Environment.NORMAL, 1337, wgen);
 		log.info("[Garden] loaded.");

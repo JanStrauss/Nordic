@@ -13,7 +13,6 @@ public class Populator_Longgrass extends BlockPopulator {
 
 	@Override
 	public void populate(World world, Random random, Chunk source) {
-
 		for (int x = 0; x < 16; x++) {
 			for (int z = 0; z < 16; z++) {
 				int chance = random.nextInt(100);
@@ -26,5 +25,4 @@ public class Populator_Longgrass extends BlockPopulator {
 			}
 		}
 	}
-
 }

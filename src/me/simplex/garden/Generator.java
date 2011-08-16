@@ -7,8 +7,10 @@ import java.util.Random;
 import me.simplex.garden.noise.Voronoi;
 import me.simplex.garden.noise.Voronoi.DistanceMetric;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.util.noise.SimplexOctaveGenerator;
@@ -228,7 +230,21 @@ public class Generator extends ChunkGenerator {
 	
 	@Override
 	public boolean canSpawn(World world, int x, int z) {
-		return true;
+		Block highest = world.getBlockAt(x, world.getHighestBlockYAt(x, z), z);
+        return highest.getType() == Material.SAND|| highest.getType() == Material.GRAVEL;
+	}
+	
+	@Override
+	public Location getFixedSpawnLocation(World world, Random random) {
+		while (true) {
+			int x = random.nextInt(128) - 64;
+			int z = random.nextInt(128) - 64;
+
+			Block b = world.getHighestBlockAt(x, z);
+			if (b.isEmpty()) {
+				return b.getLocation().add(0, 1, 0);
+			}
+		}
 	}
 
 }

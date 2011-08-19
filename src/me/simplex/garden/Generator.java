@@ -236,17 +236,17 @@ public class Generator extends ChunkGenerator {
 	@Override
 	public boolean canSpawn(World world, int x, int z) {
 		Block highest = world.getBlockAt(x, world.getHighestBlockYAt(x, z), z);
-        return highest.getType() == Material.SAND|| highest.getType() == Material.GRAVEL;
+        return highest.getType() == Material.SAND || highest.getType() == Material.GRAVEL;
 	}
 	
 	@Override
 	public Location getFixedSpawnLocation(World world, Random random) {
 		while (true) {
-			int x = random.nextInt(128) - 64;
-			int z = random.nextInt(128) - 64;
+			int x = random.nextInt(512) - 256;
+			int z = random.nextInt(512) - 256;
 
 			Block b = world.getHighestBlockAt(x, z);
-			if (!b.isEmpty() && !b.isLiquid()) {
+			if (!b.isLiquid() && b.getY() >= 48 && b.getY() <= 53) {
 				return b.getLocation().add(0, 1, 0);
 			}
 		}

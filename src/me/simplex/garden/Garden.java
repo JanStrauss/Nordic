@@ -51,6 +51,8 @@ public class Garden extends JavaPlugin {
 			String worldname = "world_garden";
 			long seed = new Random().nextLong();
 			switch (args.length) {
+			case 0:  // /garden
+				break;
 			case 1: // /garden penisland
 				worldname 	= args[0];
 				break;
@@ -100,6 +102,9 @@ public class Garden extends JavaPlugin {
 	
 	@Override
 	public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
+		if (wgen == null) {
+			wgen = new Generator(0, buildPopulators());
+		}
 		return wgen;
 	}
 }

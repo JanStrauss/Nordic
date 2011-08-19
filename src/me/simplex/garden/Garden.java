@@ -50,7 +50,10 @@ public class Garden extends JavaPlugin {
 			return true;
 		}
 		Player player = (Player)sender;
-		
+		if (!player.hasPermission("garden.command")) {
+			player.sendMessage("Y U TRY COMMAND IF U HAVE NO PERMISSION?");
+			return true;
+		}
 		if (command.getName().equalsIgnoreCase("garden")) {
 			String worldname = "world_garden";
 			long seed = new Random().nextLong();

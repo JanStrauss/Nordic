@@ -10,3 +10,8 @@ commands:
     aliases: [g,grdn]
     description: Generates a new Garden-World and ports you into it
     usage: /<command> [worldname] [seed]
+permissions:
+  garden.*:
+    description: Gives access to the /garden command
+    children:
+      garden.command: true

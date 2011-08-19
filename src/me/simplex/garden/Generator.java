@@ -26,7 +26,10 @@ public class Generator extends ChunkGenerator {
 	private Voronoi voronoi_gen_base1;
 	private Voronoi voronoi_gen_base2;
 	private Voronoi voronoi_gen_mountains;
+	
 	private ArrayList<BlockPopulator> populators;
+	
+	private long usedSeed;
 	
 	public Generator(long seed, ArrayList<BlockPopulator> populators) {
 		gen_highland			= new SimplexOctaveGenerator(new Random(seed), 16);
@@ -38,9 +41,9 @@ public class Generator extends ChunkGenerator {
 		voronoi_gen_base1 		= new Voronoi(64, true, seed, 16, DistanceMetric.Squared,	4);
 		voronoi_gen_base2 		= new Voronoi(64, true, seed, 16, DistanceMetric.Quadratic,	4);
 		voronoi_gen_mountains 	= new Voronoi(64, true, seed, 16, DistanceMetric.Squared,	4);
-		this.populators = populators;
 		
-		System.out.println("MEH MEH MEH");
+		this.populators = populators;
+		this.usedSeed = seed;
 	}
 	
 	private static int CoordinatesToByte(int x, int y, int z) {
@@ -66,6 +69,8 @@ public class Generator extends ChunkGenerator {
 
 	@Override
 	public byte[] generate(World world, Random random, int x_chunk, int z_chunk) {
+		
+		checkSeed(world.getSeed());
 		
 		int[][] chunk_heightmap = new int[16][16];
 		byte[] chunk_data = new byte[32768];
@@ -241,9 +246,28 @@ public class Generator extends ChunkGenerator {
 			int z = random.nextInt(128) - 64;
 
 			Block b = world.getHighestBlockAt(x, z);
-			if (b.isEmpty()) {
+			if (!b.isEmpty() && !b.isLiquid()) {
 				return b.getLocation().add(0, 1, 0);
 			}
+		}
+	}
+	
+	public void changeSeed(Long seed){
+		gen_highland			= new SimplexOctaveGenerator(new Random(seed), 16);
+		gen_base1				= new SimplexOctaveGenerator(new Random(seed), 16);
+		gen_base2				= new SimplexOctaveGenerator(new Random(seed), 16);
+		gen_hills				= new SimplexOctaveGenerator(new Random(seed),  4);
+		gen_ground  			= new SimplexOctaveGenerator(new Random(seed), 16);
+		
+		voronoi_gen_base1 		= new Voronoi(64, true, seed, 16, DistanceMetric.Squared,	4);
+		voronoi_gen_base2 		= new Voronoi(64, true, seed, 16, DistanceMetric.Quadratic,	4);
+		voronoi_gen_mountains 	= new Voronoi(64, true, seed, 16, DistanceMetric.Squared,	4);
+	}
+	
+	private void checkSeed(Long worldSeed){
+		if (worldSeed != usedSeed) {
+			usedSeed = worldSeed;
+			changeSeed(worldSeed);
 		}
 	}
 

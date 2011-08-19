@@ -9,12 +9,12 @@ import org.bukkit.generator.BlockPopulator;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
-public class Populator_Delayed_Foliage extends BlockPopulator {
+public class Populator_Delayed extends BlockPopulator {
 	private ArrayList<BlockPopulator> toProcess;
 	private JavaPlugin p;
 	private BukkitScheduler s;
 
-	public Populator_Delayed_Foliage(ArrayList<BlockPopulator> toProcess,JavaPlugin p, BukkitScheduler s) {
+	public Populator_Delayed(ArrayList<BlockPopulator> toProcess,JavaPlugin p, BukkitScheduler s) {
 		this.toProcess = toProcess;
 		this.p = p;
 		this.s = s;

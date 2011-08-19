@@ -1,11 +1,12 @@
 package me.simplex.garden;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.logging.Logger;
 
 import me.simplex.garden.populators.Populator_Caves;
 import me.simplex.garden.populators.Populator_CustomTrees;
-import me.simplex.garden.populators.Populator_Delayed_Foliage;
+import me.simplex.garden.populators.Populator_Delayed;
 import me.simplex.garden.populators.Populator_Flowers;
 import me.simplex.garden.populators.Populator_Gravel;
 import me.simplex.garden.populators.Populator_Lakes;
@@ -35,6 +36,40 @@ public class Garden extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		log.info("[Garden] enabled Garden v"+getDescription().getVersion());	
+	}
+	
+	@Override
+	public boolean onCommand(CommandSender sender, Command command,String label, String[] args) {
+		if (!(sender instanceof Player)) {
+			sender.sendMessage("player only command");
+			return true;
+		}
+		Player player = (Player)sender;
+		
+		if (command.getName().equalsIgnoreCase("garden")) {
+			String worldname = "world_garden";
+			long seed = new Random().nextLong();
+			switch (args.length) {
+			case 1: // /garden penisland
+				worldname 	= args[0];
+				break;
+			case 2: // /garden penisland 666
+				worldname 	= args[0];
+				seed 		= buildSeed(args[1]);
+				break;
+			default: return false;
+			}
+			
+			wgen = new Generator(seed, buildPopulators());
+			World garden = getServer().createWorld(worldname, Environment.NORMAL, seed, wgen);
+			player.teleport(garden.getSpawnLocation());
+			return true;
+		}
+		return false;
+	}
+	
+	private ArrayList<BlockPopulator> buildPopulators(){
 		ArrayList<BlockPopulator> populators_delayed = new ArrayList<BlockPopulator>();
 		populators_delayed.add(new Populator_CustomTrees());
 		populators_delayed.add(new Populator_Trees());
@@ -48,30 +83,19 @@ public class Garden extends JavaPlugin {
 		populators_main.add(new Populator_Lava_Lakes());
 		populators_main.add(new Populator_Caves());
 		populators_main.add(new Populator_Ores());
-		populators_main.add(new Populator_Delayed_Foliage(populators_delayed, this, getServer().getScheduler()));
+		populators_main.add(new Populator_Delayed(populators_delayed, this, getServer().getScheduler()));
 		
-
-		wgen = new Generator(1337, populators_main);
-		log.info("[Garden] loading Garden v"+getDescription().getVersion());
-		getServer().createWorld("world_garden", Environment.NORMAL, 1337, wgen);
-		log.info("[Garden] loaded.");
-		
+		return populators_main;
 	}
 	
-	@Override
-	public boolean onCommand(CommandSender sender, Command command,String label, String[] args) {
-		if (!(sender instanceof Player)) {
-			sender.sendMessage("player only command");
-			return true;
+	private long buildSeed(String s){
+		long ret;
+		try {
+			ret = Long.parseLong(s);
+		} catch (NumberFormatException e) {
+			ret = s.hashCode();
 		}
-		Player player = (Player)sender;
-		
-		if (command.getName().equalsIgnoreCase("garden")) {
-			World garden = getServer().getWorld("world_garden");
-			player.teleport(garden.getSpawnLocation());
-			return true;
-		}
-		return false;
+		return ret;
 	}
 	
 	@Override
@@ -79,3 +103,4 @@ public class Garden extends JavaPlugin {
 		return wgen;
 	}
 }
+

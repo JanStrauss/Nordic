@@ -1,6 +1,5 @@
 package me.simplex.garden;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -38,7 +37,7 @@ public class Generator extends ChunkGenerator {
 	private long usedSeed;
 	
 	/**
-	 * {@link Constructor} for this Class. 
+	 * Constructor for this Class. 
 	 * @param seed
 	 * @param populators
 	 */
@@ -306,10 +305,8 @@ public class Generator extends ChunkGenerator {
 			return;
 		}
 		if (height > 77 && rnd.nextBoolean()) {
-				setMaterialAt(chunk_data, x, height, z, Material.GRASS);
-				return;
+			return;
 		}
-		
 		else {
 			int soil_depth = rnd.nextInt(4);
 			if (grass) {

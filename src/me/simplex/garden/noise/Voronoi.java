@@ -2,6 +2,11 @@ package me.simplex.garden.noise;
 
 import java.util.Random;
 
+/**
+ * 
+ * @author unknown
+ *
+ */
 public class Voronoi {
 
     private float[][][][][] grid;

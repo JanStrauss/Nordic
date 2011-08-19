@@ -1,5 +1,6 @@
 package me.simplex.garden;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -15,6 +16,11 @@ import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.util.noise.SimplexOctaveGenerator;
 
+/**
+ * The ChunkGenerator of this Plugin
+ * @author simplex
+ *
+ */
 public class Generator extends ChunkGenerator {
 	
 	private SimplexOctaveGenerator gen_highland	;
@@ -31,6 +37,11 @@ public class Generator extends ChunkGenerator {
 	
 	private long usedSeed;
 	
+	/**
+	 * {@link Constructor} for this Class. 
+	 * @param seed
+	 * @param populators
+	 */
 	public Generator(long seed, ArrayList<BlockPopulator> populators) {
 		gen_highland			= new SimplexOctaveGenerator(new Random(seed), 16);
 		gen_base1				= new SimplexOctaveGenerator(new Random(seed), 16);
@@ -46,14 +57,36 @@ public class Generator extends ChunkGenerator {
 		this.usedSeed = seed;
 	}
 	
+	/**
+	 * Convents coordinates to the chunk byte array index
+	 * @param x coordinate
+	 * @param y coordinate
+	 * @param z coordinate
+	 * @return the int for the chunk byte array
+	 */
 	private static int CoordinatesToByte(int x, int y, int z) {
 		return (x * 16 + z) * 128 + y;
 	}
 	
+	/**
+	 *  Sets the Material at the given Location
+	 * @param chunk_data Chunk byte array
+	 * @param x coordinate
+	 * @param y coordinate
+	 * @param z coordinate
+	 * @param material to set at the coordinates
+	 */
 	private static void setMaterialAt(byte[] chunk_data, int x, int y, int z, Material material){
 		chunk_data[CoordinatesToByte(x, y, z)] = (byte) material.getId();
 	}
 	
+	/**
+	 * Sets the Value in the Heightmap to height if the current value is < height
+	 * @param chunk_heightmap
+	 * @param x
+	 * @param z
+	 * @param height
+	 */
 	private static void setHeightmapValueAt(int[][] chunk_heightmap, int x, int z, int height){
 		if (height > 126) {
 			height = 126;
@@ -63,6 +96,13 @@ public class Generator extends ChunkGenerator {
 		}
 	}
 	
+	/**
+	 * Gives the current Height at the given location in the Heightmap
+	 * @param chunk_heightmap
+	 * @param x
+	 * @param z
+	 * @return
+	 */
 	private static int getCurrentHeightmapValueAt(int[][] chunk_heightmap, int x, int z){
 		return chunk_heightmap[x][z];
 	}
@@ -124,12 +164,25 @@ public class Generator extends ChunkGenerator {
 		return chunk_data;
 	}
 	
+	/**
+	 * Writes the Value from the heightmap to the Chunk byte array
+	 * @param x
+	 * @param z
+	 * @param chunk_data
+	 * @param chunk_heightmap
+	 */
 	private void applyHeightMap(int x, int z, byte[] chunk_data, int[][] chunk_heightmap){
 		for (int y = 0; y <= chunk_heightmap[x][z]; y++) {
 			setMaterialAt(chunk_data, x, y, z, Material.STONE);
 		}
 	}
 
+	/**
+	 * Generates the bedrock floor
+	 * @param x
+	 * @param z
+	 * @param chunk_data
+	 */
 	private void genFloor(int x, int z, byte[] chunk_data){
 		for (int y = 0; y < 5; y++) {			
 			if (y<3) { //build solid bedrock floor
@@ -146,7 +199,17 @@ public class Generator extends ChunkGenerator {
 			}
 		}
 	}
-		
+	
+	/**
+	 * Generates some changes to the Continental Areas
+	 * @param x
+	 * @param z
+	 * @param xChunk
+	 * @param zChunk
+	 * @param current_height
+	 * @param gen
+	 * @return generated height
+	 */
 	private int gen_Highlands(int x, int z, int xChunk, int zChunk, int current_height, SimplexOctaveGenerator gen) {
 		if (current_height < 50) {
 			return 0;
@@ -155,18 +218,47 @@ public class Generator extends ChunkGenerator {
 		return (int) (34+noise);
 	}
 	
+	/**
+	 * Generates the Base-Hills
+	 * @param x
+	 * @param z
+	 * @param xChunk
+	 * @param zChunk
+	 * @param current_height
+	 * @param gen
+	 * @return generated height
+	 */
 	private int gen_Hills(int x, int z, int xChunk, int zChunk, int current_height, SimplexOctaveGenerator gen) {
 		double noise = gen.noise((x+xChunk*16)/250.0f, (z+zChunk*16)/250.0f, 0.6, 0.6)*10;	
 		return  (int) (current_height-2+noise);
 	}
 	
+	/**
+	 * Generates the Ocean ground
+	 * @param x
+	 * @param z
+	 * @param xChunk
+	 * @param zChunk
+	 * @param gen
+	 * @return generated height
+	 */
 	private int gen_Ground(int x, int z,int xChunk, int zChunk, SimplexOctaveGenerator gen) {
 		gen.setScale(1/128.0);
 		double noise = gen.noise(x+xChunk*16, z+zChunk*16, 0.01, 0.5)*20;
 		int limit = (int) (34+noise);
 		return limit;
 	}
-		
+	
+	/**
+	 * Generates the higher Hills
+	 * @param x
+	 * @param z
+	 * @param xChunk
+	 * @param zChunk
+	 * @param current_height
+	 * @param noisegen
+	 * @return generated height
+	 */
 	private int gen_Mountains(int x, int z, int xChunk, int zChunk,int current_height, Voronoi noisegen) {
 		double noise = noisegen.get((x+xChunk*16)/250.0f, (z+zChunk*16)/250.0f)*100;
 		int limit = (int) (current_height+noise);
@@ -176,6 +268,16 @@ public class Generator extends ChunkGenerator {
 		return limit;
 	}
 	
+	/**
+	 * Generates the Continental-base
+	 * @param x
+	 * @param z
+	 * @param xChunk
+	 * @param zChunk
+	 * @param gen
+	 * @param noisegen
+	 * @return
+	 */
 	private int gen_Base(int x, int z, int xChunk, int zChunk, SimplexOctaveGenerator gen, Voronoi noisegen) {
 		double noise_raw1 = gen.noise((x+xChunk*16)/1200.0f, (z+zChunk*16)/1200.0f, 0.5,0.5)*600;		
 		double noise_raw2 = noisegen.get((x+xChunk*16)/800.0f, (z+zChunk*16)/800.0f)*500;		
@@ -186,17 +288,24 @@ public class Generator extends ChunkGenerator {
 		}
 		return (int) limit;
 	}
-		
+	
+	/**
+	 * Puts a Dirt/Grass Layer over the Chunk
+	 * @param x
+	 * @param z
+	 * @param chunk_data
+	 * @param height
+	 */
 	private void gen_TopLayer(int x, int z, byte[] chunk_data, int height) {
 		boolean grass = true;
 		if (height < 48) {
 			grass = false;
 		}
 		Random rnd = new Random();
-		if (height > 75 && rnd.nextBoolean()) {
-			if (height > 85) {
-				return;
-			}
+		if (height > 80) {
+			return;
+		}
+		if (height > 77 && rnd.nextBoolean()) {
 				setMaterialAt(chunk_data, x, height, z, Material.GRASS);
 				return;
 		}
@@ -214,7 +323,13 @@ public class Generator extends ChunkGenerator {
 			}
 		}
 	}
-		
+	
+	/**
+	 * Fills the Oceans with water
+	 * @param x
+	 * @param z
+	 * @param chunk_data
+	 */
 	private void gen_Water(int x, int z, byte[] chunk_data) {
 		int y = 48;
 		while (true) {
@@ -252,6 +367,10 @@ public class Generator extends ChunkGenerator {
 		}
 	}
 	
+	/**
+	 * Sets the Noise generators to use the specified seed
+	 * @param seed
+	 */
 	public void changeSeed(Long seed){
 		gen_highland			= new SimplexOctaveGenerator(new Random(seed), 16);
 		gen_base1				= new SimplexOctaveGenerator(new Random(seed), 16);
@@ -264,6 +383,10 @@ public class Generator extends ChunkGenerator {
 		voronoi_gen_mountains 	= new Voronoi(64, true, seed, 16, DistanceMetric.Squared,	4);
 	}
 	
+	/**
+	 * Checks if the Seed that is currently used by the Noise generators is the same as the given seed. If not {@link Generator.changeSeed()} is called
+	 * @param worldSeed
+	 */
 	private void checkSeed(Long worldSeed){
 		if (worldSeed != usedSeed) {
 			usedSeed = worldSeed;

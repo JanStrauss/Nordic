@@ -17,10 +17,10 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.generator.BlockPopulator;
 
 /**
- * BlockPopulator for snake-based Trees.
+ * BlockPopulator for CustomTrees.
  * 
  * @author simplex
- * based on Pandarr's CaveGen
+ * based on Pandarr's CaveGen @see Populator_Caves
  */
 public class Populator_CustomTrees extends BlockPopulator {
 
@@ -43,7 +43,7 @@ public class Populator_CustomTrees extends BlockPopulator {
 				return;
 			}
 			Set<XYZ> snake = selectBlocksForTree(world, random, x, maxY-5, z);
-			buildCave(world, snake.toArray(new XYZ[0]));
+			buildTree(world, snake.toArray(new XYZ[0]));
 			for (XYZ block : snake) {
 				world.unloadChunkRequest(block.x / 16, block.z / 16);
 			}
@@ -84,7 +84,7 @@ public class Populator_CustomTrees extends BlockPopulator {
 		return snakeBlocks;
 	}
 
-	private static void buildCave(World world, XYZ[] snakeBlocks) {
+	private static void buildTree(World world, XYZ[] snakeBlocks) {
 		// cut the snake into slices, this is my lab report
 		HashMap<Integer, ArrayList<Block>> slices = new HashMap<Integer, ArrayList<Block>>();
 		//System.out.println(snakeBlocks.length);

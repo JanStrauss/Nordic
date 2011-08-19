@@ -25,6 +25,10 @@ import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
 
+/**
+ * Mainclass of Garden
+ * @author simplex
+ */
 public class Garden extends JavaPlugin {
 	private Logger log = Logger.getLogger("Minecraft");
 	private Generator wgen;
@@ -71,6 +75,10 @@ public class Garden extends JavaPlugin {
 		return false;
 	}
 	
+	/**
+	 * Build a List of all Populators
+	 * @return a ArrayList<BlockPopulator> that contains all populators for a garden world
+	 */
 	private ArrayList<BlockPopulator> buildPopulators(){
 		ArrayList<BlockPopulator> populators_delayed = new ArrayList<BlockPopulator>();
 		populators_delayed.add(new Populator_CustomTrees());
@@ -90,6 +98,12 @@ public class Garden extends JavaPlugin {
 		return populators_main;
 	}
 	
+	/**
+	 * Builds a seed from a string
+	 * 
+	 * @param String seed user input
+	 * @return long seed
+	 */
 	private long buildSeed(String s){
 		long ret;
 		try {

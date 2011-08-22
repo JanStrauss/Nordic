@@ -1,6 +1,6 @@
 name: BananaNordic
 main: me.simplex.nordic.Nordic
-version: 0.0.1
+version: 0.1.1
 website: http://over9000.eu
 author: simplex
 startup: startup
@@ -8,10 +8,13 @@ description: VORONOI, VORONOI EVERYWHERE
 commands:
   nordic:
     aliases: [n,nord, nrd]
-    description: Generates a new Garden-World and ports you into it
+    description: Generates a new Nordic-World and ports you into it
     usage: /<command> [worldname] [seed]
 permissions:
   nordic.*:
-    description: Gives access to the /garden command
+    description: Gives access to the /nordic command
     children:
       nordic.command: true
+  nordic.command:
+    default: op
+    description: gives acced to the /nordic command

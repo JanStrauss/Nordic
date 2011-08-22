@@ -19,7 +19,7 @@ public class Populator_Ores extends BlockPopulator {
 	private static final int[] iterations = new int[] {10, 16, 20, 20, 2, 8, 1, 1, 1};
 	private static final int[] amount = new int[] {32, 32, 16, 8, 8, 7, 7, 6};
 	private static final int[] type = new int[] {Material.GRAVEL.getId(), Material.SAND.getId(), Material.COAL_ORE.getId(),Material.IRON_ORE.getId(), Material.GOLD_ORE.getId(), Material.REDSTONE_ORE.getId(),Material.DIAMOND_ORE.getId(), Material.LAPIS_ORE.getId()};
-	private static final int[] maxHeight = new int[] {128, 128, 128, 128, 32, 32, 32, 32, 16, 16, 32};
+	private static final int[] maxHeight = new int[] {128, 45, 128, 128, 32, 32, 32, 32, 16, 16, 32};
 	private static final int STONE = Material.STONE.getId();
 
 	/**

@@ -1,6 +1,7 @@
 package me.simplex.nordic;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -16,6 +17,7 @@ import me.simplex.nordic.populators.Populator_Mushrooms;
 import me.simplex.nordic.populators.Populator_Ores;
 import me.simplex.nordic.populators.Populator_Trees;
 
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.command.Command;
@@ -70,10 +72,21 @@ public class Nordic extends JavaPlugin {
 			default: return false;
 			}
 			
-			wgen = new Generator(seed, buildPopulators());
-			World garden = getServer().createWorld(worldname, Environment.NORMAL, seed, wgen);
-			player.teleport(garden.getSpawnLocation());
-			return true;
+			if (worldExists(worldname)) {
+				player.sendMessage(ChatColor.BLUE+"[Nordic] World "+ChatColor.WHITE+worldname+ChatColor.BLUE+" already exists. Porting to this world...");
+				World w = getServer().getWorld(worldname);
+				player.teleport(w.getSpawnLocation());
+				return true;
+			}
+			else {
+				player.sendMessage(ChatColor.BLUE+"[Nordic] Generating world "+ChatColor.WHITE+worldname+ChatColor.BLUE+" with seed "+ChatColor.WHITE+seed+ChatColor.BLUE+"...");
+				wgen = new Generator(seed, buildPopulators());
+				World w = getServer().createWorld(worldname, Environment.NORMAL, seed, wgen);
+				log.info("[Nordic] "+player.getName()+" created a new world: "+worldname+" with seed "+seed);
+				player.sendMessage("done. Porting to the generated world");
+				player.teleport(w.getSpawnLocation());
+				return true;
+			}
 		}
 		return false;
 	}
@@ -123,6 +136,22 @@ public class Nordic extends JavaPlugin {
 			wgen = new Generator(0, buildPopulators());
 		}
 		return wgen;
+	}
+	
+	
+	/**
+	 * Checks if a world exists
+	 * @param wname
+	 * @return
+	 */
+	private boolean worldExists(String wname){
+		List<World> worlds = getServer().getWorlds();
+		for (World world : worlds) {
+			if (world.getName().equalsIgnoreCase(wname)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 

@@ -1,4 +1,4 @@
-package me.simplex.garden.noise;
+package me.simplex.nordic.noise;
 
 import java.util.Random;
 

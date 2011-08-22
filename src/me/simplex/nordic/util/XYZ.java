@@ -1,4 +1,4 @@
-package me.simplex.garden.util;
+package me.simplex.nordic.util;
 
 /**
  * Used for fast storage, comparison, and recall of block positions. Mutable to

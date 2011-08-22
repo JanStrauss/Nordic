@@ -1,10 +1,10 @@
-package me.simplex.garden.populators;
+package me.simplex.nordic.populators;
 
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-import me.simplex.garden.util.XYZ;
+import me.simplex.nordic.util.XYZ;
 
 import org.bukkit.Chunk;
 import org.bukkit.Material;

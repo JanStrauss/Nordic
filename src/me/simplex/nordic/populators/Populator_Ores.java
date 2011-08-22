@@ -1,4 +1,4 @@
-package me.simplex.garden.populators;
+package me.simplex.nordic.populators;
 
 import java.util.Random;
 

@@ -1,11 +1,11 @@
-package me.simplex.garden;
+package me.simplex.nordic;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import me.simplex.garden.noise.Voronoi;
-import me.simplex.garden.noise.Voronoi.DistanceMetric;
+import me.simplex.nordic.noise.Voronoi;
+import me.simplex.nordic.noise.Voronoi.DistanceMetric;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -381,7 +381,8 @@ public class Generator extends ChunkGenerator {
 	}
 	
 	/**
-	 * Checks if the Seed that is currently used by the Noise generators is the same as the given seed. If not {@link Generator.changeSeed()} is called
+	 * Checks if the Seed that is currently used by the Noise generators is the same as the given seed. 
+	 * If not {@link Generator.changeSeed()} is called.
 	 * @param worldSeed
 	 */
 	private void checkSeed(Long worldSeed){

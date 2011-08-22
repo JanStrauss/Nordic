@@ -1,4 +1,4 @@
-package me.simplex.garden.populators;
+package me.simplex.nordic.populators;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -24,7 +24,7 @@ public class Populator_Lava_Lakes extends BlockPopulator {
 	 */
 	@Override
 	public void populate(World world, Random random, Chunk source) {
-		if (!(random.nextInt(100) < 1)) {
+		if (!(random.nextInt(100) < 2)) {
 			return;
 		}
 		ChunkSnapshot snapshot = source.getChunkSnapshot();
@@ -35,8 +35,8 @@ public class Populator_Lava_Lakes extends BlockPopulator {
 		int rz = (source.getZ() << 4) + rz16;
 		if (snapshot.getHighestBlockYAt(rx16, rz16) < 4)
 			return;
-		int ry = 6 + random.nextInt(10)+20;
-		int radius = 2 + random.nextInt(3);
+		int ry = random.nextInt(20)+20;
+		int radius = 2 + random.nextInt(4);
 
 		Material solidMaterial = Material.STATIONARY_LAVA;
 

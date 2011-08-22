@@ -1,17 +1,17 @@
-name: Garden
-main: me.simplex.garden.Garden
+name: Nordic
+main: me.simplex.nordic.Nordic
 version: 0.0.1
 website: http://over9000.eu
 author: simplex
 startup: startup
 description: VORONOI, VORONOI EVERYWHERE
 commands:
-  garden:
-    aliases: [g,grdn]
+  nordic:
+    aliases: [n,nord, nrd]
     description: Generates a new Garden-World and ports you into it
     usage: /<command> [worldname] [seed]
 permissions:
-  garden.*:
+  nordic.*:
     description: Gives access to the /garden command
     children:
-      garden.command: true
+      nordic.command: true

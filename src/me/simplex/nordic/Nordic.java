@@ -1,20 +1,20 @@
-package me.simplex.garden;
+package me.simplex.nordic;
 
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.logging.Logger;
 
-import me.simplex.garden.populators.Populator_Caves;
-import me.simplex.garden.populators.Populator_CustomTrees;
-import me.simplex.garden.populators.Populator_Delayed;
-import me.simplex.garden.populators.Populator_Flowers;
-import me.simplex.garden.populators.Populator_Gravel;
-import me.simplex.garden.populators.Populator_Lakes;
-import me.simplex.garden.populators.Populator_Lava_Lakes;
-import me.simplex.garden.populators.Populator_Longgrass;
-import me.simplex.garden.populators.Populator_Mushrooms;
-import me.simplex.garden.populators.Populator_Ores;
-import me.simplex.garden.populators.Populator_Trees;
+import me.simplex.nordic.populators.Populator_Caves;
+import me.simplex.nordic.populators.Populator_CustomTrees;
+import me.simplex.nordic.populators.Populator_Delayed;
+import me.simplex.nordic.populators.Populator_Flowers;
+import me.simplex.nordic.populators.Populator_Gravel;
+import me.simplex.nordic.populators.Populator_Lakes;
+import me.simplex.nordic.populators.Populator_Lava_Lakes;
+import me.simplex.nordic.populators.Populator_Longgrass;
+import me.simplex.nordic.populators.Populator_Mushrooms;
+import me.simplex.nordic.populators.Populator_Ores;
+import me.simplex.nordic.populators.Populator_Trees;
 
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -26,21 +26,21 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
- * Mainclass of Garden
+ * Mainclass of Nordic
  * @author simplex
  */
-public class Garden extends JavaPlugin {
+public class Nordic extends JavaPlugin {
 	private Logger log = Logger.getLogger("Minecraft");
 	private Generator wgen;
 	
 	@Override
 	public void onDisable() {
-		log.info("[Garden] disabled Garden v"+getDescription().getVersion());
+		log.info("[Nordic] disabled Nordic v"+getDescription().getVersion());
 	}
 
 	@Override
 	public void onEnable() {
-		log.info("[Garden] enabled Garden v"+getDescription().getVersion());	
+		log.info("[Nordic] enabled Nordic v"+getDescription().getVersion());	
 	}
 	
 	@Override
@@ -50,20 +50,20 @@ public class Garden extends JavaPlugin {
 			return true;
 		}
 		Player player = (Player)sender;
-		if (!player.hasPermission("garden.command")) {
+		if (!player.hasPermission("nordic.command")) {
 			player.sendMessage("Y U TRY COMMAND IF U HAVE NO PERMISSION?");
 			return true;
 		}
-		if (command.getName().equalsIgnoreCase("garden")) {
-			String worldname = "world_garden";
+		if (command.getName().equalsIgnoreCase("nordic")) {
+			String worldname = "world_nordic";
 			long seed = new Random().nextLong();
 			switch (args.length) {
-			case 0:  // /garden
+			case 0:  // /nordic
 				break;
-			case 1: // /garden penisland
+			case 1: // /nordic penisland
 				worldname 	= args[0];
 				break;
-			case 2: // /garden penisland 666
+			case 2: // /nordic penisland 666
 				worldname 	= args[0];
 				seed 		= buildSeed(args[1]);
 				break;

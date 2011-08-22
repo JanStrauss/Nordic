@@ -23,8 +23,7 @@ public class Populator_Ores extends BlockPopulator {
 	private static final int STONE = Material.STONE.getId();
 
 	/**
-	 * @see org.bukkit.generator.BlockPopulator#populate(org.bukkit.World,
-	 *      java.util.Random, org.bukkit.Chunk)
+	 * @see org.bukkit.generator.BlockPopulator#populate(org.bukkit.World, java.util.Random, org.bukkit.Chunk)
 	 */
 	@Override
 	public void populate(World world, Random random, Chunk source) {

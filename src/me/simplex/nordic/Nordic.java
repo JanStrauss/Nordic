@@ -33,7 +33,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class Nordic extends JavaPlugin {
 	private Logger log = Logger.getLogger("Minecraft");
-	private Generator wgen;
+	private Nordic_ChunkGenerator wgen;
 	
 	@Override
 	public void onDisable() {
@@ -80,7 +80,7 @@ public class Nordic extends JavaPlugin {
 			}
 			else {
 				player.sendMessage(ChatColor.BLUE+"[Nordic] Generating world "+ChatColor.WHITE+worldname+ChatColor.BLUE+" with seed "+ChatColor.WHITE+seed+ChatColor.BLUE+"...");
-				wgen = new Generator(seed, buildPopulators());
+				wgen = new Nordic_ChunkGenerator(seed, buildPopulators());
 				World w = getServer().createWorld(worldname, Environment.NORMAL, seed, wgen);
 				log.info("[Nordic] "+player.getName()+" created a new world: "+worldname+" with seed "+seed);
 				player.sendMessage("done. Porting to the generated world");
@@ -133,7 +133,7 @@ public class Nordic extends JavaPlugin {
 	@Override
 	public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
 		if (wgen == null) {
-			wgen = new Generator(0, buildPopulators());
+			wgen = new Nordic_ChunkGenerator(0, buildPopulators());
 		}
 		return wgen;
 	}

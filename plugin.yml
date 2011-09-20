@@ -1,10 +1,10 @@
 name: BananaNordic
 main: me.simplex.nordic.Nordic
-version: 0.1.1
-website: http://over9000.eu
+version: 0.1.2
+website: http://forums.bukkit.org/threads/33060/
 author: simplex
-startup: startup
-description: VORONOI, VORONOI EVERYWHERE
+load: startup
+description: Custom Worldgenerator 
 commands:
   nordic:
     aliases: [n,nord, nrd]

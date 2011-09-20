@@ -20,7 +20,7 @@ import org.bukkit.util.noise.SimplexOctaveGenerator;
  * @author simplex
  *
  */
-public class Generator extends ChunkGenerator {
+public class Nordic_ChunkGenerator extends ChunkGenerator {
 	
 	private SimplexOctaveGenerator gen_highland	;
 	private SimplexOctaveGenerator gen_base1;
@@ -41,7 +41,7 @@ public class Generator extends ChunkGenerator {
 	 * @param seed
 	 * @param populators
 	 */
-	public Generator(long seed, ArrayList<BlockPopulator> populators) {
+	public Nordic_ChunkGenerator(long seed, ArrayList<BlockPopulator> populators) {
 		gen_highland			= new SimplexOctaveGenerator(new Random(seed), 16);
 		gen_base1				= new SimplexOctaveGenerator(new Random(seed), 16);
 		gen_base2				= new SimplexOctaveGenerator(new Random(seed), 16);

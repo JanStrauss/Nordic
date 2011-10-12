@@ -19,6 +19,7 @@ import me.simplex.nordic.populators.Populator_Trees;
 
 import org.bukkit.ChatColor;
 import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.World.Environment;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -81,7 +82,7 @@ public class Nordic extends JavaPlugin {
 			else {
 				player.sendMessage(ChatColor.BLUE+"[Nordic] Generating world "+ChatColor.WHITE+worldname+ChatColor.BLUE+" with seed "+ChatColor.WHITE+seed+ChatColor.BLUE+"...");
 				wgen = new Nordic_ChunkGenerator(seed, buildPopulators());
-				World w = getServer().createWorld(worldname, Environment.NORMAL, seed, wgen);
+				World w = WorldCreator.name(worldname).environment(Environment.NORMAL).seed(seed).generator(wgen).createWorld();
 				log.info("[Nordic] "+player.getName()+" created a new world: "+worldname+" with seed "+seed);
 				player.sendMessage("done. Porting to the generated world");
 				player.teleport(w.getSpawnLocation());

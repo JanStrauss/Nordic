@@ -351,13 +351,14 @@ public class Nordic_ChunkGenerator extends ChunkGenerator {
 			int x = random.nextInt(512) - 256;
 			int z = random.nextInt(512) - 256;
 			Block b = world.getHighestBlockAt(x, z).getRelative(0, -1, 0);
-			//System.out.println("Highest Y: "+b.getY());
+			System.out.println("Highest Y: "+b.getY());
 			if (!b.isLiquid() && b.getY() > 48 && b.getY() <= 54) {
-				//System.out.println("SpawnLoc = "+b.getLocation());
+				System.out.println("SpawnLoc = "+b.getLocation());
 				return b.getLocation().add(0, 1, 0);
 			}
 		}
 	}
+	
 	
 	/**
 	 * Sets the Noise generators to use the specified seed
@@ -382,9 +383,11 @@ public class Nordic_ChunkGenerator extends ChunkGenerator {
 	 */
 	private void checkSeed(Long worldSeed){
 		if (worldSeed != usedSeed) {
-			usedSeed = worldSeed;
 			changeSeed(worldSeed);
+			usedSeed = worldSeed;
 		}
 	}
+	
+	
 
 }

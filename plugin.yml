@@ -1,6 +1,6 @@
-name: BananaNordic
+name: Nordic
 main: me.simplex.nordic.Nordic
-version: 0.1.2
+version: 0.1.4
 website: http://forums.bukkit.org/threads/33060/
 author: simplex
 load: startup

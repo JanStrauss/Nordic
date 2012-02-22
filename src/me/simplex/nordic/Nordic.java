@@ -38,12 +38,10 @@ public class Nordic extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
-		log.info("[Nordic] disabled Nordic v"+getDescription().getVersion());
 	}
 
 	@Override
 	public void onEnable() {
-		log.info("[Nordic] enabled Nordic v"+getDescription().getVersion());	
 	}
 	
 	@Override

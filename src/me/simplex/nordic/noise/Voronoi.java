@@ -19,7 +19,7 @@ public class Voronoi {
     private DistanceMetric metric;
     private int level;
 
-    public enum DistanceMetric { Linear, Squared, Manhattan, Quadratic, Chebyshev, Wiggly }
+    public enum DistanceMetric {Linear, Squared, Manhattan, Quadratic, Chebyshev, Wiggly}
 
     public Voronoi(int size, boolean is2D, long seed, int density, DistanceMetric metric, int level) {
         zsize = (is2D ? 1 : size);

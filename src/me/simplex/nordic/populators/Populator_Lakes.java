@@ -1,96 +1,211 @@
 package me.simplex.nordic.populators;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import me.simplex.nordic.util.XYZ;
-
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.generator.BlockPopulator;
+import org.bukkit.util.Vector;
 
-/**
- * BlockPopulator for snake-based Lakes.
- * 
- * @author simplex
- * based on Pandarr's CaveGen
- */
 public class Populator_Lakes extends BlockPopulator {
+	
+	private static final int MIN_BLOCK_COUNT  =  450;
+	private static final int MAX_BLOCK_COUNT  =  900;
+	private static final int LAKE_CHANCE 	  =    4;
+	private static final int CREEK_CHANCE 	  =   85;
+	private static final int MAX_CREEK_LENGTH =  125;
+	
 
-	/**
-	 * @see org.bukkit.generator.BlockPopulator#populate(org.bukkit.World,
-	 *      java.util.Random, org.bukkit.Chunk)
-	 */
 	@Override
-	public void populate(final World world, final Random random, Chunk source) {
-
-		if (random.nextInt(100) < 2) {
-			final int x = 4 + random.nextInt(8) + source.getX() * 16;
-			final int z = 4 + random.nextInt(8) + source.getZ() * 16;
-			int maxY = world.getHighestBlockYAt(x, z);
-			if (maxY < 54) {
-				return;
+	public void populate(World world, Random random, Chunk source) {
+		if (random.nextInt(100) >= LAKE_CHANCE) {
+			return;
+		}
+		
+		int start_x = random.nextInt(16);
+		int start_z = random.nextInt(16);
+		
+		Block lake_start = world.getHighestBlockAt(source.getX() * 16 + start_x, source.getZ() * 16 + start_z);
+		
+		if (lake_start.getY() - 1 <= 48) {
+			return;
+		}
+		
+		Set<Block> lake_form = collectLakeLayout(world, lake_start, random);
+		Set<Block>[] form_result = startLakeBuildProcess(world, lake_form);
+		if (form_result == null) {
+			return;
+		}
+		Block creek_start = buildLake(form_result[0], random);
+		buildAirAndWaterfall(form_result[0], form_result[1], random);
+		
+		if (creek_start == null || random.nextInt(100) >= CREEK_CHANCE) {
+			return;
+		}
+		
+		List<Block> creekblocks  = collectCreekBlocks(world, creek_start, random);
+		if (creekblocks != null) {
+			buildCreek(world, creekblocks);
+		}
+		System.gc();
+	}
+	
+	/**
+	 * @param creekStart
+	 * @param random
+	 */
+	private List<Block> collectCreekBlocks(World world, Block creekStart, Random random) {
+		int check_radius = 7;
+		Vector main_dir = null;
+		
+		// Get the "main" direction
+		int highest_diff = 0;
+		for (int mod_x = -check_radius; mod_x <= check_radius; mod_x++) {
+			for (int mod_z = -check_radius; mod_z <= check_radius; mod_z++) {
+				Block toCheck = world.getHighestBlockAt(mod_x + creekStart.getX(), mod_z + creekStart.getZ());
+				int diff = creekStart.getY() - toCheck.getY();
+				if (diff > highest_diff) {
+					highest_diff = diff;
+					main_dir = new Vector(toCheck.getX() - creekStart.getX(), 0, toCheck.getZ() - creekStart.getZ());
+				}
 			}
-			Set<XYZ> snake = selectBlocksForLake(world, random, x, maxY, z);
-			buildLake(world, snake.toArray(new XYZ[0]));
-			for (XYZ block : snake) {
-				world.unloadChunkRequest(block.x / 16, block.z / 16);
+		}
+		if (main_dir != null) {
+			List<Block> creekblocks = new ArrayList<Block>();
+			Location creek_current_center = creekStart.getRelative(0, 10, 0).getLocation();
+			main_dir = main_dir.normalize().multiply(2);
+			int steps = 0;
+			while(!world.getHighestBlockAt(creek_current_center).getRelative(0, -1, 0).isLiquid() && steps < MAX_CREEK_LENGTH){
+				creekblocks.add(creek_current_center.getBlock());
+				creek_current_center = creek_current_center.add(main_dir);
+				main_dir = rotateVector(main_dir, random.nextDouble()*0.5 - 0.25);
+				steps++;
+			}
+			if (steps < MAX_CREEK_LENGTH) {
+				return creekblocks;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * @param world
+	 * @param center_blocks
+	 */
+	private void buildCreek(World world, List<Block> center_blocks){
+		Set<Block> collected_blocks_air = new HashSet<Block>();
+		Set<Block> collected_blocks_water = new HashSet<Block>();
+		
+		int radius = 3;
+		int radius_squared = 9;
+		int last_y = world.getMaxHeight();
+		
+		Set<Block> circle = new HashSet<Block>();
+		for (Block center : center_blocks){
+			circle.clear();
+			for (int x_mod = -radius; x_mod <= radius; x_mod++) {
+				for (int z_mod = -radius; z_mod <= radius; z_mod++) {
+					if ((x_mod * x_mod + z_mod * z_mod) < radius_squared) {
+						circle.add(center.getRelative(x_mod, 0, z_mod));
+					}
+				}
+			}
+			int lowest = world.getMaxHeight();
+			int highest = 0;
+			for (Block block : circle) {
+				
+				int x = block.getX();
+				int z = block.getZ();
+				int compare = world.getHighestBlockYAt(x, z);
+				
+				if (compare < lowest) {
+					lowest = compare;
+				}
+				if (compare > highest) {
+					highest = compare;
+				}
+			}
+			
+			if (lowest > last_y) {
+				lowest = last_y;
+			} else {
+				last_y = lowest;
+				if (last_y < 48) {
+					last_y = 48;
+					lowest = 48;
+				}
+			}
+			for (Block block : circle) {
+				collected_blocks_water.add(world.getBlockAt(block.getX(), lowest - 3, block.getZ()));
+				for (int y = lowest - 2; y <= highest; y++) {
+					collected_blocks_air.add(world.getBlockAt(block.getX(), y, block.getZ()));
+				}
+			}
+		}
+		
+		//actually build it
+		for (Block toWater : collected_blocks_water) {
+			toWater.setType(Material.WATER);
+		}
+		for (Block toAir : collected_blocks_air) {
+			if (toAir.getY() <= 48) {
+				toAir.setType(Material.WATER);
+			} else if(toAir.getType() != Material.LOG && 
+					  toAir.getType() != Material.LEAVES &&
+					  toAir.getType() != Material.RED_MUSHROOM &&
+					  toAir.getType() != Material.VINE &&
+					  toAir.getType() != Material.GLOWSTONE) {
+				toAir.setType(Material.AIR);
 			}
 		}
 	}
+	
+	
+	/**
+	 * @param dir
+	 * @param angle
+	 * @return
+	 */
+	private Vector rotateVector(Vector dir, double angle){
+		double new_x = dir.getX() * Math.cos(angle) - dir.getZ() * Math.sin(angle);
+		double new_z = dir.getX() * Math.sin(angle) + dir.getZ() * Math.cos(angle);
+		return new Vector(new_x, 0, new_z);
+	}
 
-	private static Set<XYZ> selectBlocksForLake(World world, Random random, int blockX, int blockY, int blockZ) {
-		Set<XYZ> snakeBlocks = new HashSet<XYZ>();
-		int blockY_start = blockY;
-		int airHits = 0;
-		XYZ block = new XYZ();
-		while (true) {
-			if (airHits > 5500) {
-				break;
+	/**
+	 * @param world
+	 * @param start
+	 * @param random
+	 * @return
+	 */
+	private Set<Block> collectLakeLayout(World world, Block start, Random random){
+		Set<Block> result = new HashSet<Block>();
+		int sizelimit = MIN_BLOCK_COUNT + random.nextInt(MAX_BLOCK_COUNT - MIN_BLOCK_COUNT);
+		int blockX = start.getX();
+		int blockY = start.getY();
+		int blockZ = start.getZ();
+		while (result.size() < sizelimit) {
+			int radius = 1 + random.nextInt(5);
+			int radius_squared = radius * radius + 1;
+			
+			for (int x_mod = -radius; x_mod <= radius; x_mod++) {
+				for (int z_mod = -radius; z_mod <= radius; z_mod++) {
+					if ((x_mod * x_mod + z_mod * z_mod) <= radius_squared) {
+						Block collected = world.getBlockAt(blockX + x_mod, blockY, blockZ + z_mod);
+						result.add(collected);
+					}
+				}
 			}
-
-			if (random.nextInt(20) == 0) {
-				if (!(blockY_start-blockY > 3)) {
-					blockY -= 2;
-				}
-			} 
-			else if (world.getBlockTypeIdAt(blockX, blockY + 2, blockZ) == 0) {
-				if (!(blockY_start-blockY > 3)) {
-					blockY--;
-				}
-			} 
-			else if (world.getBlockTypeIdAt(blockX + 2, blockY, blockZ) == 0) {
-				blockX++;
-			} 
-			else if (world.getBlockTypeIdAt(blockX - 2, blockY, blockZ) == 0) {
-				blockX--;
-			} 
-			else if (world.getBlockTypeIdAt(blockX, blockY, blockZ + 2) == 0) {
-				blockZ++;
-			} 
-			else if (world.getBlockTypeIdAt(blockX, blockY, blockZ - 2) == 0) {
-				blockZ--;
-			} 
-			else if (world.getBlockTypeIdAt(blockX + 1, blockY, blockZ) == 0) {
-				blockX++;
-			} 
-			else if (world.getBlockTypeIdAt(blockX - 1, blockY, blockZ) == 0) {
-				blockX--;
-			} 
-			else if (world.getBlockTypeIdAt(blockX, blockY, blockZ + 1) == 0) {
-				blockZ++;
-			} 
-			else if (world.getBlockTypeIdAt(blockX, blockY, blockZ - 1) == 0) {
-				blockZ--;
-			} 
-			else if (random.nextBoolean()) {
+			
+			if (random.nextBoolean()) {
 				if (random.nextBoolean()) {
 					blockX++;
 				} else {
@@ -103,142 +218,193 @@ public class Populator_Lakes extends BlockPopulator {
 					blockZ--;
 				}
 			}
-
-			if (world.getBlockTypeIdAt(blockX, blockY, blockZ) != 0) {
-				int radius = 1 + random.nextInt(5);
-				int radius2 = radius * radius + 1;
-				for (int x = -radius; x <= radius; x++) {
-					for (int y = -radius; y <= radius; y++) {
-						for (int z = -radius; z <= radius; z++) {
-							if (x * x + y * y + z * z <= radius2 && y >= 0&& y < 128) {
-								if (world.getBlockTypeIdAt(blockX + x, blockY+ y, blockZ + z) == 0) {
-									airHits++;
-								} else {
-									block.x = blockX + x;
-									block.y = blockY + y;
-									block.z = blockZ + z;
-									if (snakeBlocks.add(block)) {
-										block = new XYZ();
-									}
-								}
-							}
-						}
-					}
-				}
-			} else {
-				airHits++;
-			}
+		
 		}
-
-		return snakeBlocks;
+		return result;
 	}
+	
 
-	private static void buildLake(World world, XYZ[] snakeBlocks) {
-		// cut the snake into slices, this is my lab report
-		HashMap<Integer, ArrayList<Block>> slices = new HashMap<Integer, ArrayList<Block>>();
-		int lowest_y = 127;
-		for (XYZ loc : snakeBlocks) {
-			Block block = world.getBlockAt(loc.x, loc.y, loc.z);
-			if (!block.isEmpty() && !block.isLiquid()&& block.getType() != Material.BEDROCK) {
-				for (int y = loc.y; y < world.getHighestBlockYAt(loc.x, loc.z); y++) {
-					if (slices.containsKey(Integer.valueOf(y))) {
-						slices.get(Integer.valueOf(y)).add(world.getBlockAt(loc.x, y, loc.z));
-					}
-					else {
-						slices.put(Integer.valueOf(y), new ArrayList<Block>());
-						slices.get(Integer.valueOf(y)).add(world.getBlockAt(loc.x, y, loc.z));;
-					}
-				}
-			}
-			if (loc.y < lowest_y) {
-				lowest_y = loc.y;
-			}
-		}
-		// sort the slices 
-		ArrayList<Integer> sortedKeys = new ArrayList<Integer>(slices.keySet());
-		Collections.sort(sortedKeys);
-		
-		if (!SliceHasBorder(slices.get(sortedKeys.get(0)))) {
-			return;
-		}
-		
-		// if a slice has a solid border, fill with border, else make it air
-		ArrayList<ArrayList<Block>> water_slices = new ArrayList<ArrayList<Block>>();
-		ArrayList<ArrayList<Block>> air_slices = new ArrayList<ArrayList<Block>>();
-		for (Integer key : sortedKeys) {
-			ArrayList<Block> slice = slices.get(key);
-			if (SliceHasBorder(slice)) {
-				for (Block block : slice) {
-					block.setType(Material.STATIONARY_WATER);
-				}
-				water_slices.add(slice);
-			}
-			else {
-				for (Block block : slice) {
-					block.setType(Material.AIR);
-				}
-				air_slices.add(slice);
-			}
-		}
-		// dirt on ground of the lake
-		for (Block block : slices.get(Integer.valueOf(lowest_y))) {
-			block.getRelative(BlockFace.DOWN).setType(Material.DIRT);
-		}
-		// stair'd ground
-		for (int steps = water_slices.size()-1; steps >= 0; steps--) {
-			for (int layer = 0; layer < steps; layer++) {
-				ArrayList<Block> blocks = water_slices.get(layer);
-				ArrayList<Block> toRemove = new ArrayList<Block>();
-				for (Block b : blocks) {
-					if (checkBlockIsOnBorderOfSlice(b, blocks)) {
-						b.setType(Material.DIRT);
-						toRemove.add(b);
-					}
-				}
-				for (Block b : toRemove) {
-					blocks.remove(b);
-				}			
-			}
-		}
-		//shiny waterfalls
-		
-		//ignore 2 lowest slices
-		if (air_slices.size()>1) {
-			air_slices.remove(0);
-		}
-		if (air_slices.size()>1) {
-			air_slices.remove(0);
-		}
-		
-		//select possible blocks
-		ArrayList<Block> waterfall_candidates = new ArrayList<Block>();
-		int limit = 6;
-		if (air_slices.size() < limit) {
-			limit = air_slices.size();
-		}
-		for (int i = 0; i < limit; i++) {
-			ArrayList<Block> slice = air_slices.get(i);
-			for (Block b : slice) {
-				boolean checkBorder = checkBlockIsOnBorderOfSlice(b, slice);
-				boolean checkQualified = isWaterfallQualified(b);
-				//System.out.println(checkBorder +" | "+checkQualified);
-				if (checkBorder && checkQualified) {
-					waterfall_candidates.add(b);
+	/**
+	 * @param ground
+	 * @param blocks
+	 * @param random
+	 */
+	private void buildAirAndWaterfall(Set<Block> ground, Set<Block> blocks, Random random) {
+		List<Block> candidates = new ArrayList<Block>();
+		int ground_height = ground.iterator().next().getY();
+		for (Block block : blocks) {
+			if (block.getType() != Material.LOG && block.getType() != Material.LEAVES && block.getType() != Material.RED_MUSHROOM && block.getType() != Material.VINE && block.getType() != Material.GLOWSTONE) {
+				block.setType(Material.AIR);
+				if (checkBlockIsOnBorderOfSlice(block, blocks) && isWaterfallQualified(block) && block.getY() >= ground_height + 3) {
+					candidates.add(block);
 				}
 			}
 		}
-		//build it
-		//System.out.println(waterfall_candidates.size());
-		Random r = new Random();
-		if (!waterfall_candidates.isEmpty()) {
-			buildWaterfall(waterfall_candidates.get(r.nextInt(waterfall_candidates.size())));
-			if (r.nextInt(100)< 10) {
-				buildWaterfall(waterfall_candidates.get(r.nextInt(waterfall_candidates.size())));
+		if (!candidates.isEmpty()) {
+			buildWaterfall(candidates.get(random.nextInt(candidates.size())));
+			if (random.nextInt(100) < 20) {
+				buildWaterfall(candidates.get(random.nextInt(candidates.size())));
 			}
 		}
 	}
 	
-	private static boolean SliceHasBorder(ArrayList<Block> slice){
+	/**
+	 * @param world World to build the lake in
+	 * @param blocks shape of the lake
+	 * @return result[0]: "water" layer, result[1]: blocks that have to be changed to air
+	 */
+	@SuppressWarnings("unchecked")
+	private Set<Block>[] startLakeBuildProcess(World world, Set<Block> blocks){
+		int lowest = world.getMaxHeight();
+		int highest = 0;
+		for (Block block : blocks) {
+			
+			int x = block.getX();
+			int z = block.getZ();
+			int compare = world.getHighestBlockYAt(x, z);
+			
+			if (compare < lowest) {
+				lowest = compare;
+			}
+			if (compare > highest) {
+				highest = compare;
+			}
+			if (compare < 48) {
+				return null;
+			}
+		}
+		
+		if (lowest < 48 || highest - lowest > 25) {
+			return null;
+		}
+		
+		Set<Block>[] result = new Set[2];
+		result[0] = new HashSet<Block>();
+		result[1] = new HashSet<Block>();
+		
+		for (Block block : blocks) {
+			result[0].add(world.getBlockAt(block.getX(), lowest - 1, block.getZ()));
+			for (int y = lowest; y <= highest; y++) {
+				result[1].add(world.getBlockAt(block.getX(), y, block.getZ()));
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * @param top_layer
+	 * @param random
+	 * @return
+	 */
+	private Block buildLake(Set<Block> top_layer, Random random){
+		int max_lake_depth = random.nextInt(2) + 3;
+		
+		//Make sure the lake has a border 
+		Set<Block> to_air = new HashSet<Block>();
+		int lowering = 0;
+		while (!sliceHasBorder(top_layer) && lowering <= 3) {
+			to_air.addAll(top_layer);
+			top_layer = lower_layer(top_layer);
+			lowering++;
+		}
+		for (Block block : to_air) {
+			block.setType(Material.AIR);
+		}
+		
+		//Build the First water layer
+		for (Block block : top_layer) {
+			block.setType(Material.STATIONARY_WATER);
+		}
+		
+		// "Stepped" Ground
+		Set<Block> working_layer = lower_layer(top_layer);
+		
+		for (int mod_y = 0; mod_y > -max_lake_depth; mod_y--) {
+			Set<Block> next_layer = new HashSet<Block>();
+			for (Block block : working_layer) {
+				if (checkBlockIsOnBorderOfSlice(block, working_layer)) {
+					if (!block.isLiquid()) {
+						block.setType(Material.DIRT);
+					}
+				} else {
+					next_layer.add(block.getRelative(0, -1, 0));
+					block.setType(Material.STATIONARY_WATER);
+				}
+			}
+			working_layer = next_layer;
+		}
+		
+		//Ground of the lake
+		for (Block block : working_layer) {
+			if (!block.isLiquid()) {
+				block.setType(Material.DIRT);
+			}
+		}
+		
+		//Return the start point for a possible creek, null if this lake doesn't have a suitable block
+		for (Block block : top_layer) {
+			if (checkBlockIsOnBorderOfSlice(block, top_layer)) {
+				Block candidate = block.getRelative(getUncontainedBlockFace(block, top_layer));
+				if (candidate.getRelative(BlockFace.UP).isEmpty()) {
+//					System.out.println("startpoint found");
+//					candidate.setType(Material.GLOWSTONE);
+					return candidate;
+				}
+			}
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * @param waterLayer
+	 * @return
+	 */
+	private Set<Block> lower_layer(Set<Block> waterLayer) {
+		Set<Block> result = new HashSet<Block>();
+		for (Block block : waterLayer) {
+			result.add(block.getRelative(0, -1, 0));
+		}
+		return result;
+	}
+
+	/**
+	 * @param block
+	 * @param slice
+	 * @return
+	 */
+	private boolean checkBlockIsOnBorderOfSlice(Block block, Set<Block> slice){
+		BlockFace[] faces = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
+			if (slice.contains(block.getRelative(faces[0])) 
+			 && slice.contains(block.getRelative(faces[1])) 
+			 && slice.contains(block.getRelative(faces[2])) 
+			 && slice.contains(block.getRelative(faces[3]))) {
+				return false;
+			}
+		return true;
+	}
+	
+	/**
+	 * @param block
+	 * @param slice
+	 * @return
+	 */
+	private BlockFace getUncontainedBlockFace(Block block, Set<Block> slice){
+		BlockFace[] faces = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
+		for (BlockFace face : faces) {
+			if (!slice.contains(block.getRelative(face))) {
+				return face;
+			}
+		}
+
+		return null;
+	}
+	
+	/**
+	 * @param slice
+	 * @return
+	 */
+	private boolean sliceHasBorder(Set<Block> slice){
 		for (Block block : slice) {
 			if (!hasNeighbors(block)) {
 				return false;
@@ -247,14 +413,25 @@ public class Populator_Lakes extends BlockPopulator {
 		return true;
 	}
 	
-	private static boolean hasNeighbors(Block block){
-		if (!block.getRelative(BlockFace.WEST).isEmpty() && !block.getRelative(BlockFace.EAST).isEmpty() && !block.getRelative(BlockFace.NORTH).isEmpty() && !block.getRelative(BlockFace.SOUTH).isEmpty()) {
+	/**
+	 * @param block
+	 * @return
+	 */
+	private boolean hasNeighbors(Block block){
+		if (!block.getRelative(BlockFace.WEST).isEmpty() && 
+			!block.getRelative(BlockFace.EAST).isEmpty() && 
+			!block.getRelative(BlockFace.NORTH).isEmpty() && 
+			!block.getRelative(BlockFace.SOUTH).isEmpty()) {
 			return true;
 		}
 		return false;
 	}
 	
-	private static boolean isWaterfallQualified(Block block){
+	/**
+	 * @param block
+	 * @return
+	 */
+	private boolean isWaterfallQualified(Block block){
 		BlockFace[] faces = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};	
 		for (BlockFace f : faces) {
 			Block r = block.getRelative(f);
@@ -267,7 +444,10 @@ public class Populator_Lakes extends BlockPopulator {
 		return false;
 	}
 	
-	private static void buildWaterfall(Block block){
+	/**
+	 * @param block
+	 */
+	private void buildWaterfall(Block block){
 		BlockFace[] faces = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};	
 		for (BlockFace f : faces) {
 			Block r = block.getRelative(f);
@@ -277,17 +457,5 @@ public class Populator_Lakes extends BlockPopulator {
 			}
 		}
 	}
-		
-	private static boolean checkBlockIsOnBorderOfSlice(Block block, ArrayList<Block> slice){
-		BlockFace[] faces = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
-			if (slice.contains(block.getRelative(faces[0])) 
-			 && slice.contains(block.getRelative(faces[1])) 
-			 && slice.contains(block.getRelative(faces[2])) 
-			 && slice.contains(block.getRelative(faces[3]))) {
-				return false;
-			}
-		return true;
-	}
-	
 
 }

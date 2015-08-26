@@ -1,18 +1,11 @@
 Nordic
 ======
-Copyright 2012 s1mpl3x
 
-This file is part of Nordic.
+![Nordic](https://i.imgur.com/KJ3Di.png)
 
-Nordic is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ordic is a Worldgenerator which creates a world that will have a nordic looking. There are continents and smaller islands, lakes, a custom Treetype, some caves and all ores/mushrooms/flowers/lava... whatever you need. Most of the screenshots were made during development using the seed 1337 if you want to try this world. You might experience some strange spawning locations and some strange blocks around the generated lakes, but it should be very rare.
 
-Nordic is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+You have to know how to edit the bukkit.yml or use a plugin that does this part for you, like Pinapp.
+The command & permission beneath are not needed if you use Pinapp or edit the bukkit.yml, i just left them in so its possible to take a look on a Nordic world without doing any configuration stuff.
 
-You should have received a copy of the GNU General Public License
-along with Hawk If not, see <http://www.gnu.org/licenses/>.
+screenshots: http://imgur.com/a/r7v5x

@@ -1,0 +1,20 @@
+name: Nordic
+main: eu.over9000.nordic.Nordic
+version: 0.3.0
+website: https://github.com/s1mpl3x/Nordic
+author: s1mpl3x
+load: startup
+description: Custom Worldgenerator
+commands:
+  nordic:
+    aliases: [n,nord, nrd]
+    description: Generates a new Nordic-World and ports you into it
+    usage: /<command> [worldname] [seed]
+permissions:
+  nordic.*:
+    description: Gives access to the /nordic command
+    children:
+      nordic.command: true
+  nordic.command:
+    default: op
+    description: gives acced to the /nordic command

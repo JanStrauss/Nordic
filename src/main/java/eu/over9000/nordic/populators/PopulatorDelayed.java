@@ -27,12 +27,12 @@ import org.bukkit.scheduler.BukkitScheduler;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Populator_Delayed extends BlockPopulator {
-	private ArrayList<BlockPopulator> toProcess;
-	private JavaPlugin p;
-	private BukkitScheduler s;
+public class PopulatorDelayed extends BlockPopulator {
+	private final ArrayList<BlockPopulator> toProcess;
+	private final JavaPlugin p;
+	private final BukkitScheduler s;
 
-	public Populator_Delayed(ArrayList<BlockPopulator> toProcess, JavaPlugin p, BukkitScheduler s) {
+	public PopulatorDelayed(final ArrayList<BlockPopulator> toProcess, final JavaPlugin p, final BukkitScheduler s) {
 		this.toProcess = toProcess;
 		this.p = p;
 		this.s = s;
@@ -42,9 +42,8 @@ public class Populator_Delayed extends BlockPopulator {
 	public void populate(final World world, final Random random, final Chunk source) {
 		s.scheduleSyncDelayedTask(p, new Runnable() {
 
-			@Override
 			public void run() {
-				for (BlockPopulator p : toProcess) {
+				for (final BlockPopulator p : toProcess) {
 					p.populate(world, random, source);
 				}
 

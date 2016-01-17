@@ -18,6 +18,8 @@
  */
 package eu.over9000.nordic.util;
 
+import java.util.Objects;
+
 /**
  * Used for fast storage, comparison, and recall of block positions. Mutable to
  * avoid creating new objects for simple comparison.
@@ -29,7 +31,7 @@ public class XYZ {
 	public int y;
 	public int z;
 
-	public XYZ(int x, int y, int z) {
+	public XYZ(final int x, final int y, final int z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -38,43 +40,19 @@ public class XYZ {
 	public XYZ() {
 	}
 
-	/**
-	 * @see java.lang.Object#hashCode()
-	 */
+
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + x;
-		result = prime * result + y;
-		result = prime * result + z;
-		return result;
+	public boolean equals(final Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		final XYZ xyz = (XYZ) o;
+		return x == xyz.x &&
+				y == xyz.y &&
+				z == xyz.z;
 	}
 
-	/**
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (!(obj instanceof XYZ)) {
-			return false;
-		}
-		XYZ other = (XYZ) obj;
-		if (x != other.x) {
-			return false;
-		}
-		if (y != other.y) {
-			return false;
-		}
-		if (z != other.z) {
-			return false;
-		}
-		return true;
+	public int hashCode() {
+		return Objects.hash(x, y, z);
 	}
 }

@@ -18,33 +18,28 @@
  */
 package eu.over9000.nordic.populators;
 
-import org.bukkit.*;
+import org.bukkit.Chunk;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.generator.BlockPopulator;
 
 import java.util.Random;
 
-public class Populator_Trees extends BlockPopulator {
+public class PopulatorLonggrass extends BlockPopulator {
 
 	@Override
-	public void populate(World world, Random random, Chunk source) {
-		int treecount = random.nextInt(3);
-
-		for (int t = 0; t <= treecount; t++) {
-			int tree_x = random.nextInt(15);
-			int tree_z = random.nextInt(15);
-
-			Block block = world.getHighestBlockAt(tree_x + source.getX() * 16, tree_z + source.getZ() * 16);
-			Location high = block.getLocation();
-			if (!block.getRelative(BlockFace.DOWN).getType().equals(Material.GRASS)) {
-				return;
-			}
-			if (random.nextInt(10) < 1) {
-				world.generateTree(high, TreeType.TALL_REDWOOD);
-
-			} else {
-				world.generateTree(high, TreeType.REDWOOD);
+	public void populate(final World world, final Random random, final Chunk source) {
+		for (int x = 0; x < 16; x++) {
+			for (int z = 0; z < 16; z++) {
+				final int chance = random.nextInt(100);
+				if (chance < 33) {
+					final Block handle = world.getHighestBlockAt(x + source.getX() * 16, z + source.getZ() * 16);
+					if (handle.getRelative(BlockFace.DOWN).getType().equals(Material.GRASS)) {
+						handle.setTypeIdAndData(Material.LONG_GRASS.getId(), (byte) 1, false);
+					}
+				}
 			}
 		}
 	}

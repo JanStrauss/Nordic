@@ -35,14 +35,14 @@ import java.util.Set;
  * @author Pandarr
  *         modified by simplex
  */
-public class Populator_Caves extends BlockPopulator {
+public class PopulatorCaves extends BlockPopulator {
 
 	/**
 	 * @see org.bukkit.generator.BlockPopulator#populate(org.bukkit.World,
 	 * java.util.Random, org.bukkit.Chunk)
 	 */
 	@Override
-	public void populate(final World world, final Random random, Chunk source) {
+	public void populate(final World world, final Random random, final Chunk source) {
 
 		if (random.nextInt(100) < 3) {
 			final int x = 4 + random.nextInt(8) + source.getX() * 16;
@@ -53,16 +53,16 @@ public class Populator_Caves extends BlockPopulator {
 			}
 
 			final int y = random.nextInt(maxY);
-			Set<XYZ> snake = selectBlocksForCave(world, random, x, y, z);
-			buildCave(world, snake.toArray(new XYZ[0]));
-			for (XYZ block : snake) {
+			final Set<XYZ> snake = selectBlocksForCave(world, random, x, y, z);
+			buildCave(world, snake.toArray(new XYZ[snake.size()]));
+			for (final XYZ block : snake) {
 				world.unloadChunkRequest(block.x / 16, block.z / 16);
 			}
 		}
 	}
 
-	static Set<XYZ> selectBlocksForCave(World world, Random random, int blockX, int blockY, int blockZ) {
-		Set<XYZ> snakeBlocks = new HashSet<XYZ>();
+	static Set<XYZ> selectBlocksForCave(final World world, final Random random, int blockX, int blockY, int blockZ) {
+		final Set<XYZ> snakeBlocks = new HashSet<XYZ>();
 
 		int airHits = 0;
 		XYZ block = new XYZ();
@@ -106,8 +106,8 @@ public class Populator_Caves extends BlockPopulator {
 			}
 
 			if (world.getBlockTypeIdAt(blockX, blockY, blockZ) != 0) {
-				int radius = 1 + random.nextInt(2);
-				int radius2 = radius * radius + 1;
+				final int radius = 1 + random.nextInt(2);
+				final int radius2 = radius * radius + 1;
 				for (int x = -radius; x <= radius; x++) {
 					for (int y = -radius; y <= radius; y++) {
 						for (int z = -radius; z <= radius; z++) {
@@ -134,9 +134,9 @@ public class Populator_Caves extends BlockPopulator {
 		return snakeBlocks;
 	}
 
-	static void buildCave(World world, XYZ[] snakeBlocks) {
-		for (XYZ loc : snakeBlocks) {
-			Block block = world.getBlockAt(loc.x, loc.y, loc.z);
+	static void buildCave(final World world, final XYZ[] snakeBlocks) {
+		for (final XYZ loc : snakeBlocks) {
+			final Block block = world.getBlockAt(loc.x, loc.y, loc.z);
 			if (!block.isEmpty() && !block.isLiquid() && block.getType() != Material.BEDROCK) {
 				block.setType(Material.AIR);
 			}

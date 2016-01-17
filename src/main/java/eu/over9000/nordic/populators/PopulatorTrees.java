@@ -18,35 +18,33 @@
  */
 package eu.over9000.nordic.populators;
 
-import org.bukkit.Chunk;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.generator.BlockPopulator;
 
 import java.util.Random;
 
-public class Populator_Flowers extends BlockPopulator {
+public class PopulatorTrees extends BlockPopulator {
 
 	@Override
-	public void populate(World world, Random random, Chunk source) {
-		int chance = random.nextInt(100);
-		if (chance < 10) {
-			int flowercount = random.nextInt(3) + 2;
-			int type = random.nextInt(100);
-			for (int t = 0; t <= flowercount; t++) {
-				int flower_x = random.nextInt(15);
-				int flower_z = random.nextInt(15);
+	public void populate(final World world, final Random random, final Chunk source) {
+		final int treecount = random.nextInt(3);
 
-				Block handle = world.getBlockAt(flower_x + source.getX() * 16, world.getHighestBlockYAt(flower_x + source.getX() * 16, flower_z + source.getZ() * 16), flower_z + source.getZ() * 16);
-				if (handle.getRelative(BlockFace.DOWN).getType().equals(Material.GRASS)) {
-					if (type < 33) {
-						handle.setType(Material.RED_ROSE);
-					} else {
-						handle.setType(Material.YELLOW_FLOWER);
-					}
-				}
+		for (int t = 0; t <= treecount; t++) {
+			final int tree_x = random.nextInt(15);
+			final int tree_z = random.nextInt(15);
+
+			final Block block = world.getHighestBlockAt(tree_x + source.getX() * 16, tree_z + source.getZ() * 16);
+			final Location high = block.getLocation();
+			if (!block.getRelative(BlockFace.DOWN).getType().equals(Material.GRASS)) {
+				return;
+			}
+			if (random.nextInt(10) < 1) {
+				world.generateTree(high, TreeType.TALL_REDWOOD);
+
+			} else {
+				world.generateTree(high, TreeType.REDWOOD);
 			}
 		}
 	}

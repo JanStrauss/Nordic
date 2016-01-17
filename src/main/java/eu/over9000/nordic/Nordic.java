@@ -41,8 +41,11 @@ import java.util.logging.Logger;
  * @author simplex
  */
 public class Nordic extends JavaPlugin {
-	private Logger log = Logger.getLogger("Minecraft");
-	private Nordic_ChunkGenerator wgen;
+	private final Logger log = Logger.getLogger("Minecraft");
+	private NordicChunkGenerator wgen;
+
+	private static final String WORLD_NAME = "world_nordic";
+	private static final List<BlockPopulator> populators = buildPopulators();
 
 	@Override
 	public void onDisable() {
@@ -50,46 +53,41 @@ public class Nordic extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		wgen = new NordicChunkGenerator(populators);
 	}
 
 	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+	public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
 		if (!(sender instanceof Player)) {
 			sender.sendMessage("player only command");
 			return true;
 		}
-		Player player = (Player) sender;
+		final Player player = (Player) sender;
 		if (!player.hasPermission("nordic.command")) {
 			player.sendMessage("You don't have the permission required to use this plugin");
 			return true;
 		}
 		if (command.getName().equalsIgnoreCase("nordic")) {
-			String worldname = "world_nordic";
 			long seed = new Random().nextLong();
 			switch (args.length) {
 				case 0:  // /nordic
 					break;
-				case 1: // /nordic penisland
-					worldname = args[0];
-					break;
-				case 2: // /nordic penisland 666
-					worldname = args[0];
-					seed = buildSeed(args[1]);
+				case 1: // /nordic 1337
+					seed = buildSeed(args[0]);
 					break;
 				default:
 					return false;
 			}
 
-			if (worldExists(worldname)) {
-				player.sendMessage(ChatColor.BLUE + "[Nordic] World " + ChatColor.WHITE + worldname + ChatColor.BLUE + " already exists. Porting to this world...");
-				World w = getServer().getWorld(worldname);
+			if (worldExists(WORLD_NAME)) {
+				player.sendMessage(ChatColor.BLUE + "[Nordic] World " + ChatColor.WHITE + WORLD_NAME + ChatColor.BLUE + " already exists. Porting to this world...");
+				final World w = getServer().getWorld(WORLD_NAME);
 				player.teleport(w.getSpawnLocation());
 				return true;
 			} else {
-				player.sendMessage(ChatColor.BLUE + "[Nordic] Generating world " + ChatColor.WHITE + worldname + ChatColor.BLUE + " with seed " + ChatColor.WHITE + seed + ChatColor.BLUE + "...");
-				wgen = new Nordic_ChunkGenerator(seed, buildPopulators());
-				World w = WorldCreator.name(worldname).environment(Environment.NORMAL).seed(seed).generator(wgen).createWorld();
-				log.info("[Nordic] " + player.getName() + " created a new world: " + worldname + " with seed " + seed);
+				player.sendMessage(ChatColor.BLUE + "[Nordic] Generating world " + ChatColor.WHITE + WORLD_NAME + ChatColor.BLUE + " with seed " + ChatColor.WHITE + seed + ChatColor.BLUE + "...");
+				final World w = WorldCreator.name(WORLD_NAME).environment(Environment.NORMAL).seed(seed).generator(wgen).createWorld();
+				log.info("[Nordic] " + player.getName() + " created a new world: " + WORLD_NAME + " with seed " + seed);
 				player.sendMessage("done. Porting to the generated world");
 				player.teleport(w.getSpawnLocation());
 				return true;
@@ -101,25 +99,21 @@ public class Nordic extends JavaPlugin {
 	/**
 	 * Build a List of all Populators
 	 *
-	 * @return a ArrayList<BlockPopulator> that contains all populators for a garden world
+	 * @return a ArrayList<BlockPopulator> that contains all populators
 	 */
-	private ArrayList<BlockPopulator> buildPopulators() {
-		ArrayList<BlockPopulator> populators_delayed = new ArrayList<BlockPopulator>();
-		populators_delayed.add(new Populator_CustomTrees());
-		populators_delayed.add(new Populator_Trees());
-		populators_delayed.add(new Populator_Flowers());
-		populators_delayed.add(new Populator_Mushrooms());
-		populators_delayed.add(new Populator_Longgrass());
-
-		ArrayList<BlockPopulator> populators_main = new ArrayList<BlockPopulator>();
-		populators_main.add(new Populator_Lakes());
-		populators_main.add(new Populator_Gravel());
-		populators_main.add(new Populator_Lava_Lakes());
-		populators_main.add(new Populator_Caves());
-		populators_main.add(new Populator_Ores());
-		populators_main.add(new Populator_Delayed(populators_delayed, this, getServer().getScheduler()));
-
-		return populators_main;
+	private static List<BlockPopulator> buildPopulators() {
+		final ArrayList<BlockPopulator> populators = new ArrayList<BlockPopulator>();
+		populators.add(new PopulatorLakes());
+		populators.add(new PopulatorGravel());
+		populators.add(new PopulatorLavaLakes());
+		populators.add(new PopulatorCaves());
+		populators.add(new PopulatorOres());
+		populators.add(new PopulatorCustomTrees());
+		populators.add(new PopulatorTrees());
+		populators.add(new PopulatorFlowers());
+		populators.add(new PopulatorMushrooms());
+		populators.add(new PopulatorLonggrass());
+		return populators;
 	}
 
 	/**
@@ -128,39 +122,30 @@ public class Nordic extends JavaPlugin {
 	 * @param s seed user input
 	 * @return long seed
 	 */
-	private long buildSeed(String s) {
-		long ret;
+	private long buildSeed(final String s) {
 		try {
-			ret = Long.parseLong(s);
-		} catch (NumberFormatException e) {
-			ret = s.hashCode();
+			return Long.parseLong(s);
+		} catch (final NumberFormatException e) {
+			return s.hashCode();
 		}
-		return ret;
 	}
 
 	@Override
-	public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
-		if (wgen == null) {
-			wgen = new Nordic_ChunkGenerator(0, buildPopulators());
+	public ChunkGenerator getDefaultWorldGenerator(final String worldName, final String id) {
+
+		if (WORLD_NAME.equals(worldName)) {
+			return wgen;
 		}
-		return wgen;
+
+		return null;
 	}
 
 
 	/**
 	 * Checks if a world exists
-	 *
-	 * @param wname
-	 * @return
 	 */
-	private boolean worldExists(String wname) {
-		List<World> worlds = getServer().getWorlds();
-		for (World world : worlds) {
-			if (world.getName().equalsIgnoreCase(wname)) {
-				return true;
-			}
-		}
-		return false;
+	private boolean worldExists(final String wname) {
+		return getServer().getWorld(wname) != null;
 	}
 }
 

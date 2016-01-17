@@ -9,7 +9,7 @@ commands:
   nordic:
     aliases: [n,nord, nrd]
     description: Generates a new Nordic-World and ports you into it
-    usage: /<command> [worldname] [seed]
+    usage: /<command> [seed]
 permissions:
   nordic.*:
     description: Gives access to the /nordic command

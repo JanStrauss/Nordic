@@ -27,17 +27,24 @@ import org.bukkit.generator.BlockPopulator;
 
 import java.util.Random;
 
-public class Populator_Longgrass extends BlockPopulator {
+public class PopulatorFlowers extends BlockPopulator {
 
 	@Override
-	public void populate(World world, Random random, Chunk source) {
-		for (int x = 0; x < 16; x++) {
-			for (int z = 0; z < 16; z++) {
-				int chance = random.nextInt(100);
-				if (chance < 33) {
-					Block handle = world.getHighestBlockAt(x + source.getX() * 16, z + source.getZ() * 16);
-					if (handle.getRelative(BlockFace.DOWN).getType().equals(Material.GRASS)) {
-						handle.setTypeIdAndData(Material.LONG_GRASS.getId(), (byte) 1, false);
+	public void populate(final World world, final Random random, final Chunk source) {
+		final int chance = random.nextInt(100);
+		if (chance < 10) {
+			final int flowercount = random.nextInt(3) + 2;
+			final int type = random.nextInt(100);
+			for (int t = 0; t <= flowercount; t++) {
+				final int flower_x = random.nextInt(15);
+				final int flower_z = random.nextInt(15);
+
+				final Block handle = world.getBlockAt(flower_x + source.getX() * 16, world.getHighestBlockYAt(flower_x + source.getX() * 16, flower_z + source.getZ() * 16), flower_z + source.getZ() * 16);
+				if (handle.getRelative(BlockFace.DOWN).getType().equals(Material.GRASS)) {
+					if (type < 33) {
+						handle.setType(Material.RED_ROSE);
+					} else {
+						handle.setType(Material.YELLOW_FLOWER);
 					}
 				}
 			}

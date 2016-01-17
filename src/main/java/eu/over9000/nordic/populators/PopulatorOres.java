@@ -33,7 +33,7 @@ import java.util.Random;
  * @author Markus Persson
  *         modified by simplex
  */
-public class Populator_Ores extends BlockPopulator {
+public class PopulatorOres extends BlockPopulator {
 	private static final int[] iterations = new int[]{10, 16, 20, 20, 2, 8, 1, 1, 1};
 	private static final int[] amount = new int[]{32, 32, 16, 8, 8, 7, 7, 6};
 	private static final int[] type = new int[]{Material.GRAVEL.getId(), Material.SAND.getId(), Material.COAL_ORE.getId(), Material.IRON_ORE.getId(), Material.GOLD_ORE.getId(), Material.REDSTONE_ORE.getId(), Material.DIAMOND_ORE.getId(), Material.LAPIS_ORE.getId()};
@@ -44,7 +44,7 @@ public class Populator_Ores extends BlockPopulator {
 	 * @see org.bukkit.generator.BlockPopulator#populate(org.bukkit.World, java.util.Random, org.bukkit.Chunk)
 	 */
 	@Override
-	public void populate(World world, Random random, Chunk source) {
+	public void populate(final World world, final Random random, final Chunk source) {
 		for (int i = 0; i < type.length; i++) {
 			for (int j = 0; j < iterations[i]; j++) {
 				internal(source, random, random.nextInt(16), random.nextInt(maxHeight[i]), random.nextInt(16), amount[i], type[i]);
@@ -52,17 +52,17 @@ public class Populator_Ores extends BlockPopulator {
 		}
 	}
 
-	private static void internal(Chunk source, Random random, int originX, int originY, int originZ, int amount, int type) {
+	private static void internal(final Chunk source, final Random random, final int originX, final int originY, final int originZ, final int amount, final int type) {
 		for (int i = 0; i < amount; i++) {
 			int x = originX + random.nextInt(amount / 2) - amount / 4;
-			int y = originY + random.nextInt(amount / 4) - amount / 8;
+			final int y = originY + random.nextInt(amount / 4) - amount / 8;
 			int z = originZ + random.nextInt(amount / 2) - amount / 4;
 			x &= 0xf;
 			z &= 0xf;
 			if (y > 127 || y < 0) {
 				continue;
 			}
-			Block block = source.getBlock(x, y, z);
+			final Block block = source.getBlock(x, y, z);
 			if (block.getTypeId() == STONE) {
 				block.setTypeId(type, false);
 			}

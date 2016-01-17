@@ -35,35 +35,35 @@ import java.util.Random;
  *
  * @author codename_B
  */
-public class Populator_Lava_Lakes extends BlockPopulator {
+public class PopulatorLavaLakes extends BlockPopulator {
 	/**
 	 * @see org.bukkit.generator.BlockPopulator#populate(org.bukkit.World,
 	 * java.util.Random, org.bukkit.Chunk)
 	 */
 	@Override
-	public void populate(World world, Random random, Chunk source) {
+	public void populate(final World world, final Random random, final Chunk source) {
 		if (!(random.nextInt(100) < 2)) {
 			return;
 		}
-		ChunkSnapshot snapshot = source.getChunkSnapshot();
+		final ChunkSnapshot snapshot = source.getChunkSnapshot();
 
-		int rx16 = random.nextInt(16);
-		int rx = (source.getX() << 4) + rx16;
-		int rz16 = random.nextInt(16);
-		int rz = (source.getZ() << 4) + rz16;
+		final int rx16 = random.nextInt(16);
+		final int rx = (source.getX() << 4) + rx16;
+		final int rz16 = random.nextInt(16);
+		final int rz = (source.getZ() << 4) + rz16;
 		if (snapshot.getHighestBlockYAt(rx16, rz16) < 4)
 			return;
-		int ry = random.nextInt(20) + 20;
-		int radius = 2 + random.nextInt(4);
+		final int ry = random.nextInt(20) + 20;
+		final int radius = 2 + random.nextInt(4);
 
-		Material solidMaterial = Material.STATIONARY_LAVA;
+		final Material solidMaterial = Material.STATIONARY_LAVA;
 
-		ArrayList<Block> lakeBlocks = new ArrayList<Block>();
+		final ArrayList<Block> lakeBlocks = new ArrayList<Block>();
 		for (int i = -1; i < 4; i++) {
-			Vector center = new BlockVector(rx, ry - i, rz);
+			final Vector center = new BlockVector(rx, ry - i, rz);
 			for (int x = -radius; x <= radius; x++) {
 				for (int z = -radius; z <= radius; z++) {
-					Vector position = center.clone().add(new Vector(x, 0, z));
+					final Vector position = center.clone().add(new Vector(x, 0, z));
 					if (center.distance(position) <= radius + 0.5 - i) {
 						lakeBlocks.add(world.getBlockAt(position.toLocation(world)));
 					}
@@ -71,15 +71,13 @@ public class Populator_Lava_Lakes extends BlockPopulator {
 			}
 		}
 
-		for (Block block : lakeBlocks) {
-			// Ensure it's not air or liquid already
-			if (!block.isEmpty() && !block.isLiquid()) {
-				if (block.getY() >= ry) {
-					block.setType(Material.AIR);
-				} else {
-					block.setType(solidMaterial);
-				}
+		// Ensure it's not air or liquid already
+		lakeBlocks.stream().filter(block -> !block.isEmpty() && !block.isLiquid()).forEach(block -> {
+			if (block.getY() >= ry) {
+				block.setType(Material.AIR);
+			} else {
+				block.setType(solidMaterial);
 			}
-		}
+		});
 	}
 }

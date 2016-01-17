@@ -25,19 +25,19 @@ import java.util.Random;
  */
 public class Voronoi {
 
-	private float[][][][][] grid;
-	private Random r;
-	private int density;
-	private int size;
-	private int zsize;
-	private int dimensions;
-	private boolean is2D;
-	private DistanceMetric metric;
-	private int level;
+	private final float[][][][][] grid;
+	private final Random r;
+	private final int density;
+	private final int size;
+	private final int zsize;
+	private final int dimensions;
+	private final boolean is2D;
+	private final DistanceMetric metric;
+	private final int level;
 
 	public enum DistanceMetric {Linear, Squared, Manhattan, Quadratic, Chebyshev, Wiggly}
 
-	public Voronoi(int size, boolean is2D, long seed, int density, DistanceMetric metric, int level) {
+	public Voronoi(final int size, final boolean is2D, final long seed, final int density, final DistanceMetric metric, final int level) {
 		zsize = (is2D ? 1 : size);
 		dimensions = (is2D ? 2 : 3);
 		grid = new float[size][size][zsize][density][dimensions];
@@ -55,8 +55,8 @@ public class Voronoi {
 							grid[i][j][k][d][e] = r.nextFloat();
 	}
 
-	private float distance(float[] a, int[] offset, float[] b) {
-		float[] m = new float[dimensions];
+	private float distance(final float[] a, final int[] offset, final float[] b) {
+		final float[] m = new float[dimensions];
 		for (int i = 0; i < dimensions; i++)
 			m[i] = b[i] - (a[i] + offset[i]);
 
@@ -104,20 +104,20 @@ public class Voronoi {
 	};
 
 
-	public float get(float xin, float yin, float zin) {
+	public float get(final float xin, final float yin, final float zin) {
 		if (is2D)
 			throw new UnsupportedOperationException(
 					"Cannot create 3D Voronoi basis when instantiated with is2D = true.");
 
-		int[] cell = {fastfloor(xin), fastfloor(yin), fastfloor(zin)};
-		float[] pos = {xin - cell[0], yin - cell[1], zin - cell[2]};
+		final int[] cell = {fastfloor(xin), fastfloor(yin), fastfloor(zin)};
+		final float[] pos = {xin - cell[0], yin - cell[1], zin - cell[2]};
 		for (int i = 0; i < 3; i++) cell[i] %= size;
 
-		float distances[] = new float[level];
+		final float[] distances = new float[level];
 		for (int i = 0; i < level; i++) distances[i] = Float.MAX_VALUE;
 		for (int i = 0; i < order3D.length; i++) {
 			boolean possible = true;
-			float farDist = distances[level - 1];
+			final float farDist = distances[level - 1];
 			if (farDist < Float.MAX_VALUE)
 				for (int j = 0; j < 3; j++)
 					if (order3D[i][j] < 0 && farDist < pos[j] ||
@@ -126,11 +126,11 @@ public class Voronoi {
 						break;
 					}
 			if (!possible) continue;
-			int cx = (order3D[i][0] + cell[0]) % size;
-			int cy = (order3D[i][1] + cell[1]) % size;
-			int cz = (order3D[i][2] + cell[2]) % size;
+			final int cx = (order3D[i][0] + cell[0]) % size;
+			final int cy = (order3D[i][1] + cell[1]) % size;
+			final int cz = (order3D[i][2] + cell[2]) % size;
 			for (int j = 0; j < density; j++) {
-				float d = distance(grid[cx][cy][cz][j], order3D[i], pos);
+				final float d = distance(grid[cx][cy][cz][j], order3D[i], pos);
 				for (int k = 0; k < level; k++) {
 					if (d < distances[k]) {
 						for (int l = level - 1; l > k; l--)
@@ -145,20 +145,20 @@ public class Voronoi {
 	}
 
 
-	public float get(float xin, float yin) {
+	public float get(final float xin, final float yin) {
 		if (!is2D)
 			throw new UnsupportedOperationException(
 					"Cannot create 2D Voronoi basis when instantiated with is2D = false.");
 
-		int[] cell = {fastfloor(xin), fastfloor(yin)};
-		float[] pos = {xin - cell[0], yin - cell[1]};
+		final int[] cell = {fastfloor(xin), fastfloor(yin)};
+		final float[] pos = {xin - cell[0], yin - cell[1]};
 		for (int i = 0; i < 2; i++) cell[i] %= size;
 
-		float distances[] = new float[level];
+		final float[] distances = new float[level];
 		for (int i = 0; i < level; i++) distances[i] = Float.MAX_VALUE;
 		for (int i = 0; i < order2D.length; i++) {
 			boolean possible = true;
-			float farDist = distances[level - 1];
+			final float farDist = distances[level - 1];
 			if (farDist < Float.MAX_VALUE)
 				for (int j = 0; j < dimensions; j++)
 					if (order2D[i][j] < 0 && farDist < pos[j] ||
@@ -167,10 +167,10 @@ public class Voronoi {
 						break;
 					}
 			if (!possible) continue;
-			int cx = (order2D[i][0] + cell[0] + size) % size;
-			int cy = (order2D[i][1] + cell[1] + size) % size;
+			final int cx = (order2D[i][0] + cell[0] + size) % size;
+			final int cy = (order2D[i][1] + cell[1] + size) % size;
 			for (int j = 0; j < density; j++) {
-				float d = distance(grid[cx][cy][0][j], order2D[i], pos);
+				final float d = distance(grid[cx][cy][0][j], order2D[i], pos);
 				for (int k = 0; k < level; k++) {
 					if (d < distances[k]) {
 						for (int l = level - 1; l > k; l--)
@@ -184,7 +184,7 @@ public class Voronoi {
 		return distances[level - 1];
 	}
 
-	private int fastfloor(float x) {
+	private int fastfloor(final float x) {
 		return x > 0 ? (int) x : (int) x - 1;
 	}
 }

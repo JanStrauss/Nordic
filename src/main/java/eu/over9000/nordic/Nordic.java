@@ -32,7 +32,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Logger;
 
 /**
@@ -44,7 +44,8 @@ public class Nordic extends JavaPlugin {
 	private final Logger log = Logger.getLogger("Minecraft");
 	private NordicChunkGenerator wgen;
 
-	private static final String WORLD_NAME = "world_nordic";
+	private static final String DEFAULT_WORLD_NAME = "world_nordic";
+	private static final String WORLD_PREFIX = "world_";
 	private static final List<BlockPopulator> populators = buildPopulators();
 
 	@Override
@@ -68,30 +69,39 @@ public class Nordic extends JavaPlugin {
 			return true;
 		}
 		if (command.getName().equalsIgnoreCase("nordic")) {
-			long seed = new Random().nextLong();
+			String worldName;
+			final long seed;
+
 			switch (args.length) {
 				case 0:  // /nordic
+					seed = ThreadLocalRandom.current().nextLong();
+					worldName = DEFAULT_WORLD_NAME;
 					break;
-				case 1: // /nordic 1337
-					seed = buildSeed(args[0]);
+				case 1: // /nordic WORLD_NAME
+					seed = ThreadLocalRandom.current().nextLong();
+					worldName = args[0];
+					break;
+				case 2: // /nordic WORLD_NAME SEED
+					seed = buildSeed(args[1]);
+					worldName = args[0];
 					break;
 				default:
+					player.sendMessage("Syntax: /nordic <WORLD_NAME> <SEED>");
 					return false;
 			}
 
-			if (worldExists(WORLD_NAME)) {
-				player.sendMessage(ChatColor.BLUE + "[Nordic] World " + ChatColor.WHITE + WORLD_NAME + ChatColor.BLUE + " already exists. Porting to this world...");
-				final World w = getServer().getWorld(WORLD_NAME);
-				player.teleport(w.getSpawnLocation());
-				return true;
-			} else {
-				player.sendMessage(ChatColor.BLUE + "[Nordic] Generating world " + ChatColor.WHITE + WORLD_NAME + ChatColor.BLUE + " with seed " + ChatColor.WHITE + seed + ChatColor.BLUE + "...");
-				final World w = WorldCreator.name(WORLD_NAME).environment(Environment.NORMAL).seed(seed).generator(wgen).createWorld();
-				log.info("[Nordic] " + player.getName() + " created a new world: " + WORLD_NAME + " with seed " + seed);
-				player.sendMessage("done. Porting to the generated world");
-				player.teleport(w.getSpawnLocation());
-				return true;
+			if (!worldName.startsWith(WORLD_PREFIX)) {
+				worldName = WORLD_PREFIX + worldName;
 			}
+
+			player.sendMessage(ChatColor.BLUE + "[Nordic] Generating/loading world " + ChatColor.WHITE + worldName + ChatColor.BLUE + " with seed " + ChatColor.WHITE + seed + ChatColor.BLUE + "...");
+			final World world = WorldCreator.name(worldName).environment(Environment.NORMAL).seed(seed).generator(wgen).createWorld();
+			log.info("[Nordic] " + player.getName() + " created/loaded world: " + worldName + " with seed " + world.getSeed());
+
+			player.sendMessage(ChatColor.BLUE + "[Nordic] done, teleporting to spawn of the generated world");
+			player.teleport(world.getSpawnLocation());
+
+			return true;
 		}
 		return false;
 	}
@@ -132,20 +142,9 @@ public class Nordic extends JavaPlugin {
 
 	@Override
 	public ChunkGenerator getDefaultWorldGenerator(final String worldName, final String id) {
-
-		if (WORLD_NAME.equals(worldName)) {
-			return wgen;
-		}
-
-		return null;
+		log.info("[Nordic] getDefaultWorldGenerator(" + worldName + ")");
+		return wgen;
 	}
 
-
-	/**
-	 * Checks if a world exists
-	 */
-	private boolean worldExists(final String wname) {
-		return getServer().getWorld(wname) != null;
-	}
 }
 

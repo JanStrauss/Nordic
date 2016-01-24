@@ -112,7 +112,7 @@ public class Nordic extends JavaPlugin {
 	 * @return a ArrayList<BlockPopulator> that contains all populators
 	 */
 	private static List<BlockPopulator> buildPopulators() {
-		final ArrayList<BlockPopulator> populators = new ArrayList<BlockPopulator>();
+		final ArrayList<BlockPopulator> populators = new ArrayList<>();
 		populators.add(new PopulatorLakes());
 		populators.add(new PopulatorGravel());
 		populators.add(new PopulatorLavaLakes());

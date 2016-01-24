@@ -62,7 +62,7 @@ public class PopulatorCaves extends BlockPopulator {
 	}
 
 	static Set<XYZ> selectBlocksForCave(final World world, final Random random, int blockX, int blockY, int blockZ) {
-		final Set<XYZ> snakeBlocks = new HashSet<XYZ>();
+		final Set<XYZ> snakeBlocks = new HashSet<>();
 
 		int airHits = 0;
 		XYZ block = new XYZ();

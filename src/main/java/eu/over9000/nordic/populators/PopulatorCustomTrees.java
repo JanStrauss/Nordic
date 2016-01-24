@@ -63,7 +63,7 @@ public class PopulatorCustomTrees extends BlockPopulator {
 	}
 
 	private static Set<XYZ> selectBlocksForTree(final World world, final Random r, final int blockX, int blockY, final int blockZ) {
-		final Set<XYZ> snakeBlocks = new HashSet<XYZ>();
+		final Set<XYZ> snakeBlocks = new HashSet<>();
 		final int height = blockY + 20 + r.nextInt(5);
 		XYZ block = new XYZ();
 		while (true) {
@@ -98,7 +98,7 @@ public class PopulatorCustomTrees extends BlockPopulator {
 
 	private static void buildTree(final World world, final XYZ[] snakeBlocks) {
 		// cut the snake into slices, this is my lab report
-		final HashMap<Integer, ArrayList<Block>> slices = new HashMap<Integer, ArrayList<Block>>();
+		final HashMap<Integer, ArrayList<Block>> slices = new HashMap<>();
 		//System.out.println(snakeBlocks.length);
 		for (final XYZ loc : snakeBlocks) {
 			final Block block = world.getBlockAt(loc.x, loc.y, loc.z);
@@ -106,13 +106,13 @@ public class PopulatorCustomTrees extends BlockPopulator {
 				if (slices.containsKey(Integer.valueOf(loc.y))) {
 					slices.get(Integer.valueOf(loc.y)).add(block);
 				} else {
-					slices.put(Integer.valueOf(loc.y), new ArrayList<Block>());
+					slices.put(Integer.valueOf(loc.y), new ArrayList<>());
 					slices.get(Integer.valueOf(loc.y)).add(block);
 				}
 			}
 		}
 
-		final ArrayList<Integer> sortedKeys = new ArrayList<Integer>(slices.keySet());
+		final ArrayList<Integer> sortedKeys = new ArrayList<>(slices.keySet());
 		Collections.sort(sortedKeys);
 		final int low = sortedKeys.get(0);
 		final int high = sortedKeys.get(sortedKeys.size() - 1);
@@ -136,7 +136,7 @@ public class PopulatorCustomTrees extends BlockPopulator {
 //				buildTreeLayer1(toBranches);
 //			}
 			if (!buildLayer2) {
-				final ArrayList<Block> toBranches = new ArrayList<Block>();
+				final ArrayList<Block> toBranches = new ArrayList<>();
 				for (final Block b : slice) {
 					if (b.getY() - low >= (high - low) - 8 && checkBlockIsOnBorderOfSlice(b, slice)) {
 						toBranches.add(b);
@@ -146,7 +146,7 @@ public class PopulatorCustomTrees extends BlockPopulator {
 				buildTreeLayer2(toBranches);
 			}
 			if (!buildLayer3) {
-				final ArrayList<Block> toBranches = new ArrayList<Block>();
+				final ArrayList<Block> toBranches = new ArrayList<>();
 				for (final Block b : slice) {
 					if (b.getY() - low >= (high - low) - 4 && checkBlockIsOnBorderOfSlice(b, slice)) {
 						toBranches.add(b);
@@ -156,7 +156,7 @@ public class PopulatorCustomTrees extends BlockPopulator {
 				buildTreeLayer3(toBranches);
 			}
 			if (!buildLayer4) {
-				final ArrayList<Block> toBranches = new ArrayList<Block>();
+				final ArrayList<Block> toBranches = new ArrayList<>();
 				for (final Block b : slice) {
 					if (b.getY() - low >= (high - low) && checkBlockIsOnBorderOfSlice(b, slice)) {
 						toBranches.add(b);
@@ -212,7 +212,7 @@ public class PopulatorCustomTrees extends BlockPopulator {
 //	}
 
 	private static void buildTreeLayer2(final ArrayList<Block> blocks) {
-		final ArrayList<Block> branches = new ArrayList<Block>();
+		final ArrayList<Block> branches = new ArrayList<>();
 
 		for (final Block b : blocks) {
 			final BlockFace dir = getBuildDirection(b);
@@ -247,7 +247,7 @@ public class PopulatorCustomTrees extends BlockPopulator {
 	}
 
 	private static void buildTreeLayer3(final ArrayList<Block> blocks) {
-		final ArrayList<Block> branches = new ArrayList<Block>();
+		final ArrayList<Block> branches = new ArrayList<>();
 
 		for (final Block b : blocks) {
 			final BlockFace dir = getBuildDirection(b);
@@ -264,7 +264,7 @@ public class PopulatorCustomTrees extends BlockPopulator {
 	}
 
 	private static void buildTreeLayer4(final ArrayList<Block> blocks) {
-		final ArrayList<Block> branches = new ArrayList<Block>();
+		final ArrayList<Block> branches = new ArrayList<>();
 		for (final Block block : blocks) {
 			branches.add(block);
 		}

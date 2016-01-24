@@ -58,7 +58,7 @@ public class PopulatorLavaLakes extends BlockPopulator {
 
 		final Material solidMaterial = Material.STATIONARY_LAVA;
 
-		final ArrayList<Block> lakeBlocks = new ArrayList<Block>();
+		final ArrayList<Block> lakeBlocks = new ArrayList<>();
 		for (int i = -1; i < 4; i++) {
 			final Vector center = new BlockVector(rx, ry - i, rz);
 			for (int x = -radius; x <= radius; x++) {
